@@ -81,7 +81,7 @@ main{flex:1;min-height:0;position:relative}
 .view{position:absolute;inset:0}
 
 /* ---------- editor ---------- */
-.editor{display:grid;grid-template-columns:96px minmax(0,1fr) 340px;gap:12px;padding-block:12px;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+.editor{display:grid;grid-template-columns:116px minmax(0,1fr) clamp(360px,25vw,460px);gap:12px;padding-block:12px;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
 .rail{overflow-y:auto;padding:10px 8px;display:flex;flex-direction:column;gap:4px}
 .rail h5{margin:8px 4px 2px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:700}
@@ -291,18 +291,110 @@ textarea.inp{min-height:150px;font-family:ui-monospace,SFMono-Regular,Menlo,mono
 .gt .ofTag{display:flex;align-items:center;gap:5px;padding:0 8px 4px;margin-top:-2px}
 .gt .acts{display:flex;gap:2px;justify-content:flex-end}
 
-@media (max-width:1180px){.editor{grid-template-columns:minmax(0,1fr) 310px}.rail{display:none}.cer-grid{grid-template-columns:1fr}.cer-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.hint{display:none}.selbar{max-width:calc(100% - 24px);bottom:62px}}
+@media (max-width:1180px){.editor{grid-template-columns:minmax(0,1fr) 310px}.rail{display:none}.cer-grid{grid-template-columns:1fr}.cer-stats{grid-template-columns:repeat(4,minmax(0,1fr))}.hint{display:none}.selbar{max-width:calc(100% - 24px);bottom:62px}}
 @media (max-width:760px){
-  .view{position:static}
-  main{overflow-y:auto}
-  .view[hidden]{display:none!important}
-  .editor{display:flex;flex-direction:column;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
-  .stage{height:66vh;flex:none}
-  .panel{overflow:visible}
-  .cer-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .cer-hero{grid-template-columns:1fr}.cer-actions{justify-content:flex-start}
-  .tab{padding:7px 11px}
-  .brand-title{font-size:20px}
+}
+/* ---- legibility on laptops/desktops */
+.sheet-handle{display:none}
+#panel{display:flex;flex-direction:column;min-width:0}
+@media (min-width:1181px){
+  .tool{font-size:12.5px;gap:4px;padding:8px 4px 9px}.tool svg{width:76px;height:54px}.rail h5{font-size:11px}
+  .p-head{padding:20px 22px 16px}.p-sec{padding:16px 22px}.p-kicker{font-size:11.5px}.p-title{font-size:36px}.p-title small{font-size:14.5px}
+  .p-sec h4{font-size:12px}.muted{font-size:13.5px}.inp{font-size:14.5px;padding:8px 10px}.fld label{font-size:12.5px}.check{font-size:14px}
+  .stat b{font-size:34px}.stat span{font-size:12.5px}.stat{padding:12px 14px}
+  .chip{font-size:14px;padding:6px 12px}.gname{font-size:15px}.seatno{width:26px;height:26px;font-size:11.5px}.tag{font-size:11px}
+  .tlist .tn{font-size:24px}.tlist .tm div{font-size:14px}.tlist .tc{font-size:13.5px}.tlist button{grid-template-columns:50px 1fr 60px;padding:8px}
+  .btn{font-size:14px}.btn.sm{font-size:13px;padding:6px 10px}.occ{font-size:14px}
+  .fbtn{font-size:13px;padding:7px 10px}.fbtn svg{width:16px;height:16px}.hint{font-size:12.5px}.selbar .sname{font-size:13px}.selbar .sval{font-size:12.5px}
+  .brand-title{font-size:26px}.brand-sub{font-size:12px}.tab{font-size:14px;padding:8px 17px}
+}
+.ctag{background:var(--accent-soft);color:var(--accent)}
+.glist li.comp{padding-left:16px}
+.nmcell{display:flex;align-items:center;gap:2px}.nmcell .arrow{color:var(--ink-3);font-size:13px;padding-left:6px}
+.gt .ofTag{display:flex;align-items:center;gap:5px;padding:0 8px 4px;margin-top:-2px}
+.gt .acts{display:flex;gap:2px;justify-content:flex-end}
+.gt .ib.more{display:none}
+.seatgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.seatgrid button{display:flex;flex-direction:column;align-items:center;gap:2px;border:1px solid var(--line-2);background:var(--surface);border-radius:12px;padding:10px 6px}
+.seatgrid button:hover{border-color:var(--accent);background:var(--accent-soft)}
+.seatgrid b{font-family:var(--f-display);font-size:28px;line-height:1}
+.seatgrid span{font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.seatgrid small{font-size:11px;color:var(--ink-3);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seatgrid button.full{opacity:.55}
+
+/* ---- phone: app layout with bottom navigation and a bottom sheet */
+@media (max-width:760px){
+  html,body{overscroll-behavior:none}
+  .top{flex-wrap:nowrap;gap:8px;padding-block:8px;position:static;z-index:auto}
+  .brand{flex:1 1 auto;gap:9px}.brand svg{width:32px;height:32px}.brand-title{font-size:19px}.brand-sub{font-size:10.5px}
+  .top-actions{flex:none;gap:4px;flex-wrap:nowrap}
+  .top-actions .bl{display:none}.top-actions .btn{padding:9px}
+  .pill{padding:6px;border:0;background:none}.pill span{display:none}.pill i{width:9px;height:9px}
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;border-radius:0;border-width:1px 0 0;gap:0;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));padding-left:max(6px,env(safe-area-inset-left,0px));padding-right:max(6px,env(safe-area-inset-right,0px));background:var(--surface);justify-content:space-around;box-shadow:0 -4px 20px rgba(0,0,0,.06)}
+  .tab{flex:1;flex-direction:column;gap:3px;font-size:11.5px;padding:7px 4px;border-radius:12px;position:relative}
+  .tab svg{width:22px;height:22px}
+  .tab .cnt{position:absolute;top:2px;left:calc(50% + 6px);font-size:10px;padding:0 6px}
+  .tab[aria-selected="true"]{background:var(--accent-soft);color:var(--accent);box-shadow:none}
+  main{margin-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
+  .view{position:absolute;inset:0}
+  .view[hidden]{display:none!important}
+  .editor{display:block;padding:0}
+  #edStage{position:absolute;inset:0 0 54px 0;border-radius:0;border:0;min-height:0}
+  .floatbar{top:8px;left:8px;right:8px;gap:6px}
+  #edStage .floatbar .fbtn{font-size:0;gap:0;padding:8px}#edStage .floatbar .fbtn svg{width:18px;height:18px}
+  #edStage .floatbar .fbtn.add{font-size:13px;gap:6px;padding:8px 12px}
+  .zoombar{right:8px;bottom:8px}.zoombar .zv{display:none}#edStage .zoombar .fbtn{font-size:0;gap:0;padding:8px}.zoombar .fbtn svg{width:18px;height:18px}
+  .selbar{top:56px;bottom:auto;left:8px;right:8px;max-width:none;flex-wrap:nowrap;overflow-x:auto}
+  .selbar .fbtn{font-size:0;gap:0;padding:8px;flex:none}.selbar .fbtn svg{width:18px;height:18px}.selbar .sname{max-width:110px}
+  .panel{position:fixed;left:0;right:0;bottom:calc(66px + env(safe-area-inset-bottom,0px));z-index:25;max-height:min(68dvh,620px);border-radius:18px 18px 0 0;border-width:1px 0 0;transform:translateY(calc(100% - 54px));transition:transform .28s cubic-bezier(.2,.8,.2,1);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 -10px 40px rgba(0,0,0,.18)}
+  .panel.open{transform:none}
+  .sheet-handle{display:flex;align-items:center;gap:10px;flex:none;height:54px;border:0;background:var(--surface);padding:0 18px;font-weight:700;font-size:15px;color:var(--ink);position:relative;text-align:left}
+  .sheet-handle i{position:absolute;top:7px;left:50%;width:40px;height:4px;margin-left:-20px;border-radius:9px;background:var(--line-2)}
+  .sheet-handle span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-top:4px}
+  .sheet-handle svg{width:20px;height:20px;color:var(--ink-2);transition:transform .2s;flex:none}
+  .panel.open .sheet-handle svg{transform:rotate(180deg)}
+  #panel{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;border-top:1px solid var(--line)}
+  .p-head{padding:14px 18px 12px}.p-title{font-size:28px}
+  .stats{grid-template-columns:repeat(3,1fr)}.stat b{font-size:24px}
+  .inp,.gname,textarea.inp{font-size:16px}
+  .ib{padding:8px}.ib svg{width:17px;height:17px}
+  .chip{font-size:14px;padding:8px 12px;cursor:pointer}
+  .glist li{padding:4px 2px}
+  /* guests list as cards */
+  .wrap{padding-block:16px 30px}
+  .vh{gap:10px;margin-bottom:12px}.vh h1{font-size:32px}.vh p{font-size:13px}
+  .vh .btn{flex:1 1 auto;justify-content:center}
+  .toolbar select.inp{flex:1 1 45%}
+  .gtable-wrap{overflow:visible}
+  table.gt{min-width:0}.gt thead{display:none}.gt,.gt tbody{display:block}
+  .gt tr[data-gid]{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 6px;padding:10px 8px;border-bottom:1px solid var(--line)}
+  .gt tr[data-gid] td{display:block;border:0;padding:0;background:none!important}
+  .gt tr[data-gid] td.num{display:none}
+  .gt td.c-name{grid-column:1;grid-row:1}.gt td.c-act{grid-column:2;grid-row:1}
+  .gt td.c-table{grid-column:1/-1}
+  .gt tr[data-gid] td.sec{display:none;grid-column:1/-1}
+  .gt tr[data-gid].open td.sec{display:block}
+  .gt td.sec::before{content:attr(data-l);display:block;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:4px 8px 0}
+  .gt .inp{border-color:var(--line)}
+  .gt td.c-name .inp{font-weight:700;border-color:transparent}
+  .gt .ib.more{display:grid}
+  .gt tr.open .ib.more svg{transform:rotate(180deg)}
+  .gt tr.grp{display:block}.gt tr.grp td{display:block;border-radius:8px;margin-top:10px}
+  .card.gtable-wrap{border-radius:14px}
+  /* cerimonial */
+  .cer-map{height:62dvh;min-height:360px}
+  .cer-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cer-hero h1{font-size:44px}
+  .cards{grid-template-columns:1fr}
+  /* dialogs as bottom sheets */
+  .scrim{place-items:end center;padding:0}
+  .modal,.modal.sm{width:100%;max-height:92dvh;border-radius:20px 20px 0 0;padding-bottom:env(safe-area-inset-bottom,0px)}
+  .m-head{padding:20px 18px 4px}.m-body{padding:12px 18px}.m-foot{padding:12px 18px 18px}
+  .m-foot .btn{flex:1 1 auto;justify-content:center}
+  .fields{grid-template-columns:1fr 1fr}
+  .toast{bottom:calc(140px + env(safe-area-inset-bottom,0px))}
+  .pop{max-width:calc(100vw - 16px)}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -314,16 +406,16 @@ textarea.inp{min-height:150px;font-family:ui-monospace,SFMono-Regular,Menlo,mono
       <div style="min-width:0"><div class="brand-title" id="evTitle">Nosso Casamento</div><div class="brand-sub" id="evSub">Mapa de mesas</div></div>
     </div>
     <nav class="tabs" role="tablist" aria-label="Seções">
-      <button class="tab" role="tab" data-view="editor" id="tab-editor" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg>Planta</button>
-      <button class="tab" role="tab" data-view="guests" id="tab-guests" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/><path d="M16 4a4 4 0 010 8M22 21c0-3-2-5-4-5.6"/></svg>Convidados <span class="cnt" id="cntGuests">0</span></button>
-      <button class="tab" role="tab" data-view="cer" id="tab-cer" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg>Cerimonial</button>
+      <button class="tab" role="tab" data-view="editor" id="tab-editor" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg><span class="tl">Planta</span></button>
+      <button class="tab" role="tab" data-view="guests" id="tab-guests" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/><path d="M16 4a4 4 0 010 8M22 21c0-3-2-5-4-5.6"/></svg><span class="tl">Convidados</span> <span class="cnt" id="cntGuests">0</span></button>
+      <button class="tab" role="tab" data-view="cer" id="tab-cer" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg><span class="tl">Cerimonial</span></button>
     </nav>
     <div class="top-actions">
       <span class="pill" id="saveState"><i></i><span>Tudo salvo</span></span>
       <button class="btn ghost icon" id="btnSettings" title="Dados do evento" aria-label="Dados do evento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></button>
-      <button class="btn" id="btnShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>Enviar</button>
-      <button class="btn" id="btnExport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Exportar</button>
-      <button class="btn primary" id="btnSave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l5 5v11a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M7 3v6h8M7 21v-7h10v7"/></svg>Salvar</button>
+      <button class="btn" id="btnShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span class="bl">Enviar</span></button>
+      <button class="btn" id="btnExport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span class="bl">Exportar</span></button>
+      <button class="btn primary" id="btnSave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l5 5v11a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M7 3v6h8M7 21v-7h10v7"/></svg><span class="bl">Salvar</span></button>
     </div>
   </header>
   <div class="banner" id="draftBanner" hidden><span>Há alterações <b>não salvas</b> feitas neste navegador.</span><span class="sp"></span><button class="btn sm" id="draftDiscard">Descartar</button><button class="btn sm primary" id="draftRestore">Recuperar alterações</button></div>
@@ -357,7 +449,7 @@ textarea.inp{min-height:150px;font-family:ui-monospace,SFMono-Regular,Menlo,mono
         <div class="hint" id="edHint">Clique num objeto para editar · arraste para mover · alças nos cantos mudam o tamanho · roda do mouse dá zoom</div>
         <div class="fgroup selbar" id="selbar" hidden></div>
       </div>
-      <aside class="panel card" id="panel" aria-live="polite"></aside>
+      <aside class="panel card" id="panelWrap"><button class="sheet-handle" id="sheetHandle" aria-expanded="false"><i></i><span id="sheetLabel">Painel</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></button><div id="panel" aria-live="polite"></div></aside>
     </section>
 
     <section class="view guests scroll" id="view-guests" hidden aria-labelledby="tab-guests">
@@ -545,7 +637,7 @@ let plan = normalizePlan(EMBEDDED ? JSON.parse(JSON.stringify(EMBEDDED)) : defau
 if(!HAS_CLAUDE){ try{ const s=localStorage.getItem('mapa-local-saved'); if(s){ const p=JSON.parse(s); if(p&&p.elements) plan=normalizePlan(p);} }catch(e){} }
 const BASE = plan.savedAt||'inicial';
 let undoStack=[], redoStack=[], dirty=false, saving=false;
-const ui = {view:'editor', sel:null, hlGuest:null, snap:true, showEmpty:false, showNames:false, lights:true, readOnly:false, gSearch:'', gFilter:'all', gSide:'all', gComp:'all', gSort:'table'};
+const ui = {view:'editor', sel:null, hlGuest:null, snap:true, showEmpty:false, showNames:false, lights:true, readOnly:false, gSearch:'', gFilter:'all', gSide:'all', gComp:'all', gSort:'table', openRows:new Set(), sheet:false};
 const SIDE_COL = s=>{ const k=String(s||'').toLowerCase(); if(/noiva/.test(k)) return '#c98aa6'; if(/noivo/.test(k)) return '#6f93c4'; return k?'#a5814a':'transparent'; };
 const normName = s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
 function hostOf(g){ return g&&g.of? plan.guests.find(x=>x.id===g.of) : null; }
@@ -828,9 +920,11 @@ class MapView{
     const h=e.target.closest('[data-handle]'); const g=e.target.closest('[data-el]'); const w=this.toWorld(e.clientX,e.clientY);
     if(h && this.o.editable){ const el=byId(this.state.sel); this.act={type:h.dataset.handle,id:el.id,snap:snap(),moved:false}; e.preventDefault(); return; }
     if(g){ const el=byId(g.dataset.el); const gid=e.target.closest('[data-guest]');
-      if(this.o.editable){ const now=Date.now(); if(this._lastTap&&this._lastTap.id===el.id&&now-this._lastTap.t<400&&this.o.onDbl){ this._lastTap=null; this.act={type:'none'}; this.o.onDbl(el.id); return; } this._lastTap={id:el.id,t:now};
+      if(this.o.editable){ this._selAtDown=ui.sel; const now=Date.now(); if(this._lastTap&&this._lastTap.id===el.id&&now-this._lastTap.t<400&&this.o.onDbl){ this._lastTap=null; this.act={type:'none'}; this.o.onDbl(el.id); return; } this._lastTap={id:el.id,t:now};
         this.o.onSelect(el.id, gid?gid.dataset.guest:null);
-        if(!el.locked && !ui.readOnly) this.act={type:'move',id:el.id,sx:w.x,sy:w.y,ox:el.x,oy:el.y,snap:snap(),moved:false};
+        const wasSel=this._selAtDown===el.id;
+        if(e.pointerType!=='mouse'&&!wasSel) this.act={type:'tap',id:el.id,cx:e.clientX,cy:e.clientY,pan:{x:e.clientX,y:e.clientY,cx:this.cam.x,cy:this.cam.y}};
+        else if(!el.locked && !ui.readOnly) this.act={type:'move',id:el.id,sx:w.x,sy:w.y,ox:el.x,oy:el.y,snap:snap(),moved:false};
         else this.act={type:'none'};
       } else { this.act={type:'tap',id:el.id,cx:e.clientX,cy:e.clientY,pan:{x:e.clientX,y:e.clientY,cx:this.cam.x,cy:this.cam.y}}; }
       return; }
@@ -969,6 +1063,7 @@ function addElement(type,x,y){
 function renderPanel(){
   const el=ui.sel&&byId(ui.sel); const P=$('#panel'); const keepFocus=document.activeElement&&P.contains(document.activeElement)?document.activeElement.id:null;
   P.innerHTML= el? panelEl(el) : panelOverview();
+  const lab=$('#sheetLabel'); if(lab){ if(el){ lab.textContent=isTable(el)? `${elTitle(el)} · ${guestsOf(el.id).length}/${el.cap} lugares` : elTitle(el); } else { const s=stats(); lab.textContent=`Visão geral · ${s.un} sem mesa`; } }
   if(keepFocus){ const f=document.getElementById(keepFocus); if(f) f.focus(); }
 }
 function guestRow(g,i,showTable){
@@ -984,18 +1079,18 @@ function panelEl(el){
   const ro=ui.readOnly?'disabled':'';
   return `<div class="p-head"><div class="p-kicker">${T.name}${el.locked?' · travado':''}</div><div class="p-title"><span id="pTitle">${esc(elTitle(el))}</span>${t&&el.type!=='head'?`<small id="pSub">${esc(el.name||'')}</small>`:''}</div>
     ${t?`<div class="occ ${cls}"><div class="bar"><i style="width:${pct}%"></i></div><span><b>${gs.length}</b> de ${el.cap} lugares</span></div>`:''}</div>
-  ${t?`<div class="p-sec"><h4>Identificação da mesa</h4><div class="fields">
-    <div class="fld"><label for="f-label">${el.type==='head'?'Código (para importar)':'Número'}</label><input class="inp" id="f-label" data-f="label" value="${esc(el.label)}" ${ro}></div>
-    <div class="fld"><label for="f-cap">Lugares</label><input class="inp" id="f-cap" type="number" min="0" max="60" data-f="cap" value="${el.cap}" ${ro}></div>
-    <div class="fld full"><label for="f-name">${el.type==='head'?'Texto na mesa':'Nome da mesa'}</label><input class="inp" id="f-name" data-f="name" value="${esc(el.name)}" placeholder="${el.type==='head'?'Ex.: Noivos':'Ex.: Família da noiva, Padrinhos…'}" ${ro}></div>
-    ${el.type==='head'?'':`<label class="check" style="grid-column:1/-1;cursor:pointer"><input type="checkbox" id="f-showname" data-f="showName" ${el.showName!==false?'checked':''} ${ro}> Mostrar o nome na planta</label>`}
-  </div></div>`:''}
   ${t?`<div class="p-sec"><h4>Convidados nesta mesa <span class="n">${gs.length}</span></h4>
     ${gs.length?`<ul class="glist">${gs.map((g,i)=>guestRow(g,i)).join('')}</ul>`:`<div class="empty">Nenhum convidado ainda. Digite um nome abaixo — cada pessoa ganha a sua cadeira na planta.</div>`}
     ${ui.readOnly?'':`<div class="addrow"><input class="inp" id="addGuest" placeholder="Nome do convidado" autocomplete="off" aria-label="Adicionar convidado"><button class="btn primary sm" id="addGuestBtn">Adicionar</button></div>
     <div class="muted" style="margin-top:6px">Enter adiciona. Cole vários nomes (um por linha) de uma vez.</div>
     ${un.length?`<select class="inp" id="pickUn" style="margin-top:10px"><option value="">Trazer alguém da lista sem mesa (${un.length})…</option>${un.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select>`:''}`}
   </div>`:''}
+  ${t?`<div class="p-sec"><h4>Identificação da mesa</h4><div class="fields">
+    <div class="fld"><label for="f-label">${el.type==='head'?'Código (para importar)':'Número'}</label><input class="inp" id="f-label" data-f="label" value="${esc(el.label)}" ${ro}></div>
+    <div class="fld"><label for="f-cap">Lugares</label><input class="inp" id="f-cap" type="number" min="0" max="60" data-f="cap" value="${el.cap}" ${ro}></div>
+    <div class="fld full"><label for="f-name">${el.type==='head'?'Texto na mesa':'Nome da mesa'}</label><input class="inp" id="f-name" data-f="name" value="${esc(el.name)}" placeholder="${el.type==='head'?'Ex.: Noivos':'Ex.: Família da noiva, Padrinhos…'}" ${ro}></div>
+    ${el.type==='head'?'':`<label class="check" style="grid-column:1/-1;cursor:pointer"><input type="checkbox" id="f-showname" data-f="showName" ${el.showName!==false?'checked':''} ${ro}> Mostrar o nome na planta</label>`}
+  </div></div>`:''}
   <div class="p-sec"><h4>Propriedades</h4><div class="fields">
     ${el.type==='pillar'||el.type==='plant'||t?'':`<div class="fld full"><label for="f-label">Texto</label><input class="inp" id="f-label" data-f="label" value="${esc(el.label)}" ${ro}></div>`}
     ${el.type==='text'?`<div class="fld"><label for="f-font">Tamanho</label><input class="inp" id="f-font" type="number" min="10" max="200" data-f="font" value="${el.font||44}" ${ro}></div><div class="fld"><label for="f-tone">Cor</label><select class="inp" id="f-tone" data-f="tone" ${ro}><option value="dark" ${el.tone!=='light'?'selected':''}>Escura</option><option value="light" ${el.tone==='light'?'selected':''}>Clara</option></select></div>`:''}
@@ -1017,7 +1112,7 @@ function panelOverview(){
     <div class="stat"><b>${s.total}</b><span>pessoas no total</span></div><div class="stat"><b>${s.seated}</b><span>com mesa</span></div>
     <div class="stat"><b>${s.un}</b><span>sem mesa</span></div><div class="stat"><b>${s.free}</b><span>lugares livres</span></div></div></div>
   <div class="p-sec"><h4>Sem mesa <span class="n">${un.length}</span><span class="sp"></span>${ui.readOnly?'':`<button class="btn sm" id="ovImport">Colar lista</button>`}</h4>
-    ${un.length?`<div class="chips">${un.map(g=>`<span class="chip" draggable="true" data-gid="${g.id}" title="Arraste até uma mesa">${ICON.grip}${esc(g.name)}</span>`).join('')}</div><div class="muted" style="margin-top:8px">Arraste um nome até a mesa na planta.</div>`
+    ${un.length?`<div class="chips">${un.map(g=>`<span class="chip" draggable="true" data-gid="${g.id}" title="Toque para escolher a mesa ou arraste até ela">${ICON.grip}${esc(g.name)}</span>`).join('')}</div><div class="muted" style="margin-top:8px">Toque num nome para escolher a mesa, ou arraste até a mesa na planta.</div>`
       :`<div class="muted">${plan.guests.length?'Todos os convidados já têm mesa.':'A lista ainda está vazia. Cole a planilha do Excel ou adicione nomes direto nas mesas.'}</div>`}
     ${ui.readOnly?'':`<div class="addrow"><input class="inp" id="addUn" placeholder="Adicionar convidado sem mesa" autocomplete="off"><button class="btn sm" id="addUnBtn">Adicionar</button></div>`}
   </div>
@@ -1046,6 +1141,13 @@ function addCompanion(hid){ const h=plan.guests.find(x=>x.id===hid); if(!h||ui.r
   if(ui.view==='guests') renderGuests();
   requestAnimationFrame(()=>{ const inp=document.getElementById((ui.view==='guests'?'gt-n-':'gn-')+c.id); if(inp){ inp.focus(); inp.select(); } });
   toast('Acompanhante criado — digite o nome'); return c; }
+function openSeatPicker(gid){
+  const g=plan.guests.find(x=>x.id===gid); if(!g) return; const cs=compsOf(g);
+  const m=modal(`<div class="m-head"><h2>Onde ${esc(g.name.split(' ')[0])} vai sentar?</h2><p>${esc(g.name)}${cs.length?` · vai junto: ${cs.map(c=>esc(c.name)).join(', ')}`:''}</p></div>
+    <div class="m-body"><div class="seatgrid">${tablesSorted().map(t=>{ const n=guestsOf(t.id).length; return `<button data-t="${t.id}" class="${n>=t.cap&&t.cap?'full':''}"><b>${esc(tableShort(t))}</b><span>${n}/${t.cap}</span>${t.name&&t.type!=='head'?`<small>${esc(t.name)}</small>`:''}</button>`; }).join('')}</div></div>
+    <div class="m-foot"><button class="btn" data-close>Cancelar</button></div>`,'sm');
+  m.addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(!b) return; closeModal(); setGuestTable(gid,b.dataset.t); const t=byId(b.dataset.t); toast(`${g.name} → ${tableTitle(t)}`); });
+}
 function unlinkCompanion(gid){ const g=plan.guests.find(x=>x.id===gid); if(!g) return; const h=hostOf(g); mutate(()=>{ g.of=null; if(g.group==='Acompanhante') g.group=''; }); if(ui.view==='guests') renderGuests(); toast(`${g.name} agora é convidado${h?' (não mais acompanhante de '+h.name.split(' ')[0]+')':''}`); }
 function deleteGuest(gid){ const g=plan.guests.find(x=>x.id===gid); if(!g) return; mutate(()=>{ plan.guests=plan.guests.filter(x=>x.id!==gid); plan.guests.forEach(x=>{ if(x.of===gid) x.of=null; }); }); toast(`${g.name} removido`,{label:'Desfazer',fn:undo}); }
 
@@ -1063,14 +1165,14 @@ function renderGuests(){
     if(ui.gComp==='main'&&isComp(g)) return false; if(ui.gComp==='comp'&&!isComp(g)) return false;
     if(q && !normName(g.name+' '+g.group+' '+g.note+' '+g.phone+' '+g.side).includes(q)) return false; return true; });
   const ro=ui.readOnly?'disabled':'';
-  const row=(g,i)=>{ const h=hostOf(g); return `<tr data-gid="${g.id}"><td class="num">${i+1}</td><td><div class="nmcell${h?' comp':''}">${h?'<span class="arrow" aria-hidden="true">↳</span>':''}<input class="inp" id="gt-n-${g.id}" data-gfield="name" data-gid="${g.id}" value="${esc(g.name)}" placeholder="Nome" ${ro}></div>${h?`<span class="ofTag"><span class="tag ctag">Acompanhante</span> de ${esc(h.name)}</span>`:(compsOf(g).length?`<span class="ofTag">+ ${compsOf(g).length} acompanhante${compsOf(g).length>1?'s':''}</span>`:'')}</td>
-    <td><select class="inp" id="gt-t-${g.id}" data-gfield="table" data-gid="${g.id}" ${ro}>${tableOptions(g.table&&byId(g.table)?g.table:'')}</select></td>
-    <td><input class="inp" id="gt-s-${g.id}" data-gfield="side" data-gid="${g.id}" value="${esc(g.side)}" list="sideList" placeholder="Noiva / Noivo" ${ro}></td>
-    <td><input class="inp" id="gt-g-${g.id}" data-gfield="group" data-gid="${g.id}" value="${esc(g.group)}" placeholder="Ex.: Prima" ${ro}></td>
-    <td><input class="inp" id="gt-p-${g.id}" data-gfield="phone" data-gid="${g.id}" value="${esc(g.phone)}" placeholder="Telefone" inputmode="tel" ${ro}></td>
-    <td><select class="inp" id="gt-k-${g.id}" data-gfield="kind" data-gid="${g.id}" ${ro}>${['Adulto','Criança','Bebê'].map(k=>`<option ${g.kind===k?'selected':''}>${k}</option>`).join('')}</select></td>
-    <td><input class="inp" id="gt-o-${g.id}" data-gfield="note" data-gid="${g.id}" value="${esc(g.note)}" placeholder="Restrição, acessibilidade…" ${ro}></td>
-    <td><div class="acts">${ui.readOnly?'':`${h?`<button class="ib" data-unlink="${g.id}" title="Deixar de ser acompanhante (vira convidado)">${ICON_UNLINK}</button>`:`<button class="ib" data-addcomp="${g.id}" title="Adicionar acompanhante">${ICON_ADDP}</button>`}<button class="ib del" data-delguest="${g.id}" title="Excluir">${ICON.trash}</button>`}</div></td></tr>`; };
+  const row=(g,i)=>{ const h=hostOf(g); return `<tr data-gid="${g.id}" class="${ui.openRows.has(g.id)?'open':''}"><td class="num">${i+1}</td><td class="c-name"><div class="nmcell${h?' comp':''}">${h?'<span class="arrow" aria-hidden="true">↳</span>':''}<input class="inp" id="gt-n-${g.id}" data-gfield="name" data-gid="${g.id}" value="${esc(g.name)}" placeholder="Nome" ${ro}></div>${h?`<span class="ofTag"><span class="tag ctag">Acompanhante</span> de ${esc(h.name)}</span>`:(compsOf(g).length?`<span class="ofTag">+ ${compsOf(g).length} acompanhante${compsOf(g).length>1?'s':''}</span>`:'')}</td>
+    <td class="c-table"><select class="inp" id="gt-t-${g.id}" data-gfield="table" data-gid="${g.id}" ${ro}>${tableOptions(g.table&&byId(g.table)?g.table:'')}</select></td>
+    <td class="sec" data-l="Lado"><input class="inp" id="gt-s-${g.id}" data-gfield="side" data-gid="${g.id}" value="${esc(g.side)}" list="sideList" placeholder="Noiva / Noivo" ${ro}></td>
+    <td class="sec" data-l="Classificação"><input class="inp" id="gt-g-${g.id}" data-gfield="group" data-gid="${g.id}" value="${esc(g.group)}" placeholder="Ex.: Prima" ${ro}></td>
+    <td class="sec" data-l="Telefone"><input class="inp" id="gt-p-${g.id}" data-gfield="phone" data-gid="${g.id}" value="${esc(g.phone)}" placeholder="Telefone" inputmode="tel" ${ro}></td>
+    <td class="sec" data-l="Tipo"><select class="inp" id="gt-k-${g.id}" data-gfield="kind" data-gid="${g.id}" ${ro}>${['Adulto','Criança','Bebê'].map(k=>`<option ${g.kind===k?'selected':''}>${k}</option>`).join('')}</select></td>
+    <td class="sec" data-l="Observação"><input class="inp" id="gt-o-${g.id}" data-gfield="note" data-gid="${g.id}" value="${esc(g.note)}" placeholder="Restrição, acessibilidade…" ${ro}></td>
+    <td class="c-act"><div class="acts"><button class="ib more" data-more="${g.id}" title="Mais detalhes" aria-label="Mais detalhes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>${ui.readOnly?'':`${h?`<button class="ib" data-unlink="${g.id}" title="Deixar de ser acompanhante (vira convidado)">${ICON_UNLINK}</button>`:`<button class="ib" data-addcomp="${g.id}" title="Adicionar acompanhante">${ICON_ADDP}</button>`}<button class="ib del" data-delguest="${g.id}" title="Excluir">${ICON.trash}</button>`}</div></td></tr>`; };
   let html=`<datalist id="sideList">${['Noiva','Noivo',...sd].filter((v,i,a)=>a.indexOf(v)===i).map(x=>`<option value="${esc(x)}">`).join('')}</datalist>`;
   const C=9;
   if(!plan.guests.length){ html+=`<tr><td colspan="${C}"><div class="empty" style="margin:18px">A lista está vazia. Use <b>Colar do Excel</b> para trazer a sua planilha de convidados (com a coluna MESA no final), ou <b>Adicionar convidado</b>.</div></td></tr>`; }
@@ -1363,6 +1465,7 @@ function bind(){
   $('#btnSave').onclick=save; $('#btnExport').onclick=e=>openExportMenu(e.currentTarget); $('#btnShare').onclick=openShare; $('#btnSettings').onclick=openSettings;
   $('#bUndo').onclick=undo; $('#bRedo').onclick=redo;
   $('#bAdd').onclick=e=>openAddMenu(e.currentTarget);
+  $('#sheetHandle').onclick=()=>setSheet(!ui.sheet);
   $('#roUnlock').onclick=()=>{ setReadOnly(false); setView('editor'); toast('Edição liberada. Se esta conta não puder salvar, o botão Salvar avisa.'); };
   $('#selbar').addEventListener('click',e=>{ const b=e.target.closest('[data-sb]'); if(!b||b.disabled) return; const a=b.dataset.sb; const el=byId(ui.sel); if(!el) return;
     if(a==='bigger') resizeSel(1.1); else if(a==='smaller') resizeSel(1/1.1); else if(a==='rotl') rotateSel(-15); else if(a==='rotr') rotateSel(15);
@@ -1407,7 +1510,7 @@ function bind(){
   });
   P.addEventListener('keydown',e=>{ if(e.key==='Enter'){ if(e.target.id==='addGuest'){ e.preventDefault(); addFromInput('addGuest',ui.sel); } else if(e.target.id==='addUn'){ e.preventDefault(); addFromInput('addUn',null); } else if(e.target.matches('.gname,[data-f]')) e.target.blur(); } });
   P.addEventListener('paste',e=>{ if(e.target.id!=='addGuest'&&e.target.id!=='addUn') return; const t=(e.clipboardData||window.clipboardData).getData('text'); if(t&&/\n/.test(t.trim())){ e.preventDefault(); addGuests(t.split(/\r?\n/).map(l=>l.split('\t')[0]),e.target.id==='addGuest'?ui.sel:null); focusAdd(e.target.id); } });
-  P.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return;
+  P.addEventListener('click',e=>{ const ch=e.target.closest('.chip[data-gid]'); if(ch&&!ui.readOnly){ openSeatPicker(ch.dataset.gid); return; } const b=e.target.closest('button'); if(!b) return;
     if(b.id==='addGuestBtn') return addFromInput('addGuest',ui.sel);
     if(b.id==='addUnBtn') return addFromInput('addUn',null);
     if(b.id==='ovImport') return openImport();
@@ -1442,6 +1545,7 @@ function bind(){
     if(f==='table'&&(ui.gSort==='table'||moved.length)) setTimeout(()=>{ const a=document.activeElement&&document.activeElement.id; renderGuests(); const n=a&&document.getElementById(a); if(n) n.focus(); },0); else { $('#gSummary').textContent=guestSummary(); } });
   GB.addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target.matches('input')) e.target.blur(); });
   GB.addEventListener('click',e=>{ const b=e.target.closest('[data-delguest]'); if(b){ deleteGuest(b.dataset.delguest); renderGuests(); return; }
+    const mo=e.target.closest('[data-more]'); if(mo){ const id=mo.dataset.more; const tr=mo.closest('tr'); if(ui.openRows.has(id)) ui.openRows.delete(id); else ui.openRows.add(id); tr.classList.toggle('open'); return; }
     const a=e.target.closest('[data-addcomp]'); if(a){ addCompanion(a.dataset.addcomp); return; }
     const u=e.target.closest('[data-unlink]'); if(u){ unlinkCompanion(u.dataset.unlink); } });
   $('#gComp').addEventListener('change',e=>{ ui.gComp=e.target.value; renderGuests(); });
@@ -1475,6 +1579,8 @@ function bind(){
 }
 function addFromInput(id,tid){ const i=document.getElementById(id); if(!i) return; const v=i.value.trim(); if(!v) return; i.value=''; addGuests([v],tid); focusAdd(id); }
 function focusAdd(id){ requestAnimationFrame(()=>{ const i=document.getElementById(id); if(i) i.focus(); }); }
+const isPhone=()=>matchMedia('(max-width:760px)').matches;
+function setSheet(open){ ui.sheet=open; const w=$('#panelWrap'); w.classList.toggle('open',open); $('#sheetHandle').setAttribute('aria-expanded',String(open)); }
 function deleteSelected(){ const el=byId(ui.sel); if(!el) return; const n=isTable(el)?guestsOf(el.id).length:0; const name=elTitle(el);
   mutate(()=>{ plan.elements=plan.elements.filter(x=>x.id!==el.id); plan.guests.forEach(g=>{ if(g.table===el.id) g.table=null; }); ui.sel=null; });
   toast(`${name} excluída${n?` · ${n} convidado(s) ficaram sem mesa`:''}`,{label:'Desfazer',fn:undo}); }
@@ -1484,7 +1590,7 @@ function boot(){
   if(plan.autoNumber) renumber();
   grassPattern(); renderPalette();
   ed=new MapView($('#edSvg'),$('#edStage'),{editable:true,padTop:64,state:()=>ui,
-    onSelect:(id,gid)=>{ const changed=ui.sel!==id; ui.sel=id; ui.hlGuest=gid||null; if(changed||gid){ ed.renderSel(); renderPanel(); if(gid) ed.renderEls(); } if(gid){ const inp=document.getElementById('gn-'+gid); if(inp) inp.scrollIntoView({block:'nearest'}); } },
+    onSelect:(id,gid)=>{ const changed=ui.sel!==id; ui.sel=id; if(isPhone()){ if(id&&isTable(byId(id))) setSheet(true); else if(!id) setSheet(false); } ui.hlGuest=gid||null; if(changed||gid){ ed.renderSel(); renderPanel(); if(gid) ed.renderEls(); } if(gid){ const inp=document.getElementById('gn-'+gid); if(inp) inp.scrollIntoView({block:'nearest'}); } },
     onDbl:id=>{ const el=byId(id); if(el&&!ui.readOnly&&el.type!=='pillar'&&el.type!=='plant') openRename(el); },
     onCam:c=>{ $('#zv').textContent=Math.round(c.k*400)+'%'; },
     onLive:()=>{} });
