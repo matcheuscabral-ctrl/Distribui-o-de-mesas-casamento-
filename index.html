@@ -299,6 +299,13 @@ textarea.inp{min-height:150px;font-family:ui-monospace,SFMono-Regular,Menlo,mono
 }
 /* ---- legibility on laptops/desktops: header, side columns and lists scale with --uiz (the map keeps 1:1) */
 .top,.banner,.rail,.panel,#view-guests .wrap,.cer-hero,.cer-stats,.cer-side,.cer h2,.cards,#cerUnassigned,.pop,.modal,#edStage .floatbar,#edStage .zoombar,#edStage .selbar,#edStage .hint{zoom:var(--uiz,1)}
+.lock{position:fixed;inset:0;z-index:70;background:var(--bg);display:grid;place-items:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px}
+.lock-card{width:min(400px,100%);background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:30px 26px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.lock-card h2{font-family:var(--f-display);font-style:italic;font-weight:500;font-size:40px;margin:0;line-height:1}
+.lock-card p{margin:0 0 6px;color:var(--ink-2);line-height:1.5;font-size:14px}
+.lock-card .inp{font-size:17px;padding:12px 14px;text-align:center;letter-spacing:.08em}
+.lock-card .btn{width:100%;justify-content:center;padding:12px;font-size:15px}
+.lock-err{min-height:18px;color:var(--danger);font-size:13px;font-weight:600}
 .uiz{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.uiz button{flex:1 1 auto}.uiz button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
 .sheet-handle{display:none}
 #panel{display:flex;flex-direction:column;min-width:0}
@@ -425,7 +432,18 @@ textarea.inp{min-height:150px;font-family:ui-monospace,SFMono-Regular,Menlo,mono
   </header>
   <div class="banner" id="draftBanner" hidden><span>Há alterações <b>não salvas</b> feitas neste navegador.</span><span class="sp"></span><button class="btn sm" id="draftDiscard">Descartar</button><button class="btn sm primary" id="draftRestore">Recuperar alterações</button></div>
   <div class="banner" id="roBanner" hidden><span>Você está vendo o plano em <b>modo visualização</b>. Só os noivos podem alterar a planta e a lista.</span><button class="btn sm" id="roUnlock">Sou um dos noivos — editar</button></div>
-  <div class="banner" id="cloudBanner" hidden><span>Entre com a sua conta Google para ver e editar o plano compartilhado.</span><button class="btn sm primary" id="cloudLoginBtn">Entrar com Google</button></div>
+  <div class="lock" id="cloudBanner" hidden>
+    <form class="lock-card" id="lockForm" autocomplete="on">
+      <svg width="54" height="54" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="var(--accent-soft)"/><circle cx="16" cy="21" r="7.2" fill="none" stroke="var(--gold)" stroke-width="2"/><circle cx="24" cy="19" r="7.2" fill="none" stroke="var(--accent)" stroke-width="2"/></svg>
+      <div class="eyebrow">Mapa de mesas</div>
+      <h2 id="lockTitle">Nosso Casamento</h2>
+      <p>Digite a senha do casal para abrir o plano. Neste aparelho você só precisa fazer isso uma vez.</p>
+      <input type="text" name="username" id="lockUser" autocomplete="username" hidden>
+      <input class="inp" type="password" id="lockPass" placeholder="Senha" autocomplete="current-password" aria-label="Senha" required>
+      <div class="lock-err" id="lockErr" role="alert"></div>
+      <button class="btn primary" id="lockGo" type="submit">Entrar</button>
+    </form>
+  </div>
   <div class="banner" id="cloudConflict" hidden><span id="cloudConflictTxt"></span><span class="sp"></span><button class="btn sm" id="ccMine">Manter as minhas</button><button class="btn sm primary" id="ccTheirs">Ver as alterações novas</button></div>
   <main>
     <section class="view editor" id="view-editor" aria-labelledby="tab-editor">
@@ -559,6 +577,8 @@ const firebaseConfig = {
 };
 window.MAPA_FIREBASE = firebaseConfig;
 window.MAPA_DOC = "casamento";
+/* E-mail do usuário do casal criado em Authentication → Usuários (a senha NÃO fica aqui) */
+window.MAPA_LOGIN_EMAIL = "casamento@mesas-casamento.app";
 </script>
 <!-- ========================================================================== -->
 <script type="application/json" id="plan-data">{"v":1,"event":{"title":"","date":"","venue":"","notes":""},"hall":{"w":2100,"h":2600},"elements":[{"id":"ydix11gj","type":"deck","x":-175,"y":1320,"w":380,"h":420,"r":0,"label":"Deck","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"djdnf28q","type":"deck","x":2275,"y":1320,"w":380,"h":420,"r":0,"label":"Deck","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"aq2rpiih","type":"zone","x":1050,"y":2262,"w":640,"h":560,"r":0,"label":"Área do buffet","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"6e8fjh77","type":"stage","x":1050,"y":1880,"w":300,"h":170,"r":0,"label":"Cantora","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"n6ufve5n","type":"buffet","x":1050,"y":2300,"w":600,"h":100,"r":0,"label":"Buffet","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"nvckk63k","type":"station","x":-175,"y":1455,"w":140,"h":66,"r":0,"label":"Sorvete","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"x9ux4chq","type":"station","x":575,"y":1660,"w":112,"h":112,"r":-40,"label":"Aquarela","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"ed0ar3yq","type":"station","x":694,"y":1817,"w":112,"h":112,"r":-40,"label":"Aquarela","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"5qtxghs4","type":"pillar","x":0,"y":0,"w":36,"h":36,"r":0,"label":"","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"ukikknkh","type":"pillar","x":700,"y":0,"w":36,"h":36,"r":0,"label":"","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"id35mcan","type":"pillar","x":1400,"y":0,"w":36,"h":36,"r":0,"label":"","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"j6k96hqc","type":"pillar","x":2100,"y":0,"w":36,"h":36,"r":0,"label":"","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"i7dqwdhj","type":"pillar","x":0,"y":2600,"w":36,"h":36,"r":0,"label":"","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"36vj544x","type":"pillar","x":700,"y":2600,"w":36,"h":36,"r":0,"label":"","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"3pc9f26d","type":"pillar","x":1400,"y":2600,"w":36,"h":36,"r":0,"label":"","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"fjuaev5u","type":"pillar","x":2100,"y":2600,"w":36,"h":36,"r":0,"label":"","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"1dycx14e","type":"pillar","x":0,"y":860,"w":36,"h":36,"r":0,"label":"","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"pmbrr6pa","type":"pillar","x":0,"y":1790,"w":36,"h":36,"r":0,"label":"","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"7xbydtp6","type":"pillar","x":2100,"y":860,"w":36,"h":36,"r":0,"label":"","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"g8w35f6k","type":"pillar","x":2100,"y":1790,"w":36,"h":36,"r":0,"label":"","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"xk4ohje2","type":"plant","x":150,"y":140,"w":80,"h":80,"r":0,"label":"","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"ic5ke301","type":"plant","x":1950,"y":140,"w":80,"h":80,"r":0,"label":"","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"d7h292ui","type":"plant","x":150,"y":2460,"w":80,"h":80,"r":0,"label":"","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"iqiqu4nf","type":"plant","x":1950,"y":2460,"w":80,"h":80,"r":0,"label":"","name":"","cap":0,"locked":false,"font":0,"tone":"dark"},{"id":"jd5opw1q","type":"head","x":1050,"y":215,"w":220,"h":100,"r":0,"label":"N","name":"Noivos","cap":2,"locked":false,"font":0,"tone":"dark"},{"id":"j5nje1t6","type":"rect","x":1050,"y":830,"w":120,"h":640,"r":0,"label":"6","name":"","cap":20,"locked":false,"font":0,"tone":"dark"},{"id":"cg3c24ut","type":"round","x":480,"y":1000,"w":200,"h":200,"r":0,"label":"11","name":"","cap":8,"locked":false,"font":0,"tone":"dark"},{"id":"yvmelzi2","type":"round","x":1830,"y":650,"w":200,"h":200,"r":0,"label":"4","name":"","cap":8,"locked":false,"font":0,"tone":"dark"},{"id":"8wyrw1eu","type":"round","x":1830,"y":300,"w":200,"h":200,"r":0,"label":"1","name":"","cap":8,"locked":false,"font":0,"tone":"dark"},{"id":"qh95w8j5","type":"round","x":1450,"y":300,"w":200,"h":200,"r":0,"label":"2","name":"","cap":8,"locked":false,"font":0,"tone":"dark"},{"id":"cohjzvor","type":"round","x":1450,"y":650,"w":200,"h":200,"r":0,"label":"3","name":"","cap":8,"locked":false,"font":0,"tone":"dark"},{"id":"wpmu6cpy","type":"round","x":270,"y":650,"w":200,"h":200,"r":0,"label":"9","name":"","cap":8,"locked":false,"font":0,"tone":"dark"},{"id":"ludviiyd","type":"round","x":650,"y":300,"w":200,"h":200,"r":0,"label":"7","name":"","cap":8,"locked":false,"font":0,"tone":"dark"},{"id":"jnnw014a","type":"round","x":650,"y":650,"w":200,"h":200,"r":0,"label":"10","name":"","cap":8,"locked":false,"font":0,"tone":"dark"},{"id":"1wvaqyht","type":"round","x":270,"y":300,"w":200,"h":200,"r":0,"label":"8","name":"","cap":8,"locked":false,"font":0,"tone":"dark"},{"id":"b52jevye","type":"round","x":1650,"y":1000,"w":200,"h":200,"r":0,"label":"5","name":"","cap":8,"locked":false,"font":0,"tone":"dark"}],"guests":[],"savedAt":"2026-10-21T00:21:15.805Z","autoNumber":false}</script>
@@ -1005,8 +1025,8 @@ function updateHeader(){
 function updateSaveState(){
   const p=$('#saveState');
   if(CLOUD_CFG){ const off=!cloud.on; p.className='pill'+(saving?' busy':(dirty||off)?' dirty':'');
-    p.lastElementChild.textContent= cloud.err?'Problema na nuvem': !cloud.user?'Não conectado': off?'Conectando…': saving?'Salvando…': dirty?'Salvando em instantes':'Sincronizado'; if(cloud.err) p.className='pill dirty';
-    $('#btnSave').hidden=false; $('#btnSave').title=cloud.user?'Salvar agora (já salva sozinho)':'Entrar com Google'; return; }
+    p.lastElementChild.textContent= cloud.err?'Problema na nuvem': !cloud.user?'Bloqueado': off?'Conectando…': saving?'Salvando…': dirty?'Salvando em instantes':'Sincronizado'; if(cloud.err) p.className='pill dirty';
+    $('#btnSave').hidden=false; $('#btnSave').title=cloud.user?'Salvar agora (já salva sozinho)':'Digitar a senha'; return; }
   p.className='pill'+(saving?' busy':dirty?' dirty':'');
   p.lastElementChild.textContent= ui.readOnly?'Somente visualização': saving?'Salvando…': dirty?'Alterações não salvas':'Tudo salvo';
   $('#btnSave').hidden=ui.readOnly;
@@ -1453,7 +1473,7 @@ function openSettings(){
     <div class="fld"><label for="s-venue">Local</label><input class="inp" id="s-venue" value="${esc(ev.venue)}" placeholder="Nome do espaço" ${ro}></div>
     <div class="fld full"><label for="s-notes">Observações para a cerimonialista</label><textarea class="inp" id="s-notes" style="font-family:var(--f-ui);font-size:13.5px;min-height:120px" placeholder="Ex.: Avó da noiva usa cadeira de rodas — manter corredor livre até a mesa 5." ${ro}>${esc(ev.notes)}</textarea></div>
     <div class="fld full"><label>Tamanho da interface neste aparelho</label><div class="uiz">${[['auto','Automático'],['p','Pequeno'],['n','Normal'],['g','Grande'],['gg','Muito grande']].map(([k,l])=>`<button class="btn sm" data-uiz="${k}" aria-pressed="${getUizPref()===k}">${l}</button>`).join('')}</div></div>
-  </div>${CLOUD_CFG?`<div class="muted" style="margin-top:14px">${cloud.user?`Conectado como <b>${esc(cloud.user.email||'')}</b> · <button class="btn sm" id="s-out">Sair</button>`:'Não conectado à nuvem.'}</div>`:''}</div><div class="m-foot"><button class="btn" data-close>${ui.readOnly?'Fechar':'Cancelar'}</button>${ui.readOnly?'':'<button class="btn primary" id="s-ok">Aplicar</button>'}</div>`,'sm');
+  </div>${CLOUD_CFG?`<div class="muted" style="margin-top:14px">${cloud.user?`Conectado à nuvem com a senha do casal · <button class="btn sm" id="s-out">Sair deste aparelho</button>`:'Não conectado à nuvem.'}</div>`:''}</div><div class="m-foot"><button class="btn" data-close>${ui.readOnly?'Fechar':'Cancelar'}</button>${ui.readOnly?'':'<button class="btn primary" id="s-ok">Aplicar</button>'}</div>`,'sm');
   m.addEventListener('click',e=>{ const b=e.target.closest('[data-uiz]'); if(!b) return; try{ localStorage.setItem('mapa-uiz',b.dataset.uiz); }catch(_){} applyUiz(); $$('[data-uiz]',m).forEach(x=>x.setAttribute('aria-pressed',String(x===b))); requestAnimationFrame(()=>ed.fit()); });
   const so=$('#s-out',m); if(so) so.onclick=()=>{ closeModal(); cloudLogout(); };
   const ok=$('#s-ok',m); if(ok) ok.onclick=()=>{ mutate(()=>{ ev.title=$('#s-title',m).value.trim(); ev.date=$('#s-date',m).value; ev.venue=$('#s-venue',m).value.trim(); ev.notes=$('#s-notes',m).value.trim(); }); closeModal(); toast('Dados do evento atualizados'); };
@@ -1462,7 +1482,7 @@ function openShare(){
   modal(`<div class="m-head"><h2>Enviar para a cerimonialista</h2><p>Ela recebe o mesmo plano, sempre atualizado, abrindo direto no modo Cerimonial — com a planta, a busca por convidado e as mesas.</p></div>
   <div class="m-body"><ol class="steps">
     <li><div><b>Salve o plano.</b> ${dirty?'<span class="warn">Há alterações não salvas.</span>':'<span class="ok">Está tudo salvo.</span>'} Tudo o que você salvar aparece para ela no mesmo link.</div></li>
-    <li><div>${CLOUD_CFG?'<b>Mande o link deste site.</b> Ela entra com a conta Google dela (o e-mail precisa estar nas regras do Firebase) e vê e edita o mesmo plano.':'<b>Compartilhe o link desta página</b> pelo botão de compartilhar do Claude, no canto superior da janela.'}</div></li>
+    <li><div>${CLOUD_CFG?'<b>Mande o link deste site e a senha do casal.</b> Ela digita a senha uma vez no celular dela e vê e edita o mesmo plano.':'<b>Compartilhe o link desta página</b> pelo botão de compartilhar do Claude, no canto superior da janela.'}</div></li>
     <li><div><b>Mande também os arquivos</b>, se ela preferir trabalhar fora do sistema: a planilha Excel e a imagem da planta.</div></li>
   </ol></div>
   <div class="m-foot"><button class="btn" id="sh-wa">${ICON.msg}Copiar texto para WhatsApp</button><button class="btn" id="sh-png">${ICON.img}Imagem</button><button class="btn" id="sh-x">${ICON.xls}Excel</button><span class="sp"></span>${dirty&&!ui.readOnly?'<button class="btn primary" id="sh-save">Salvar agora</button>':'<button class="btn primary" data-close>Pronto</button>'}</div>`,'sm');
@@ -1479,7 +1499,7 @@ function buildHtml(){
 let artNs;
 const CLIENT_ID=Math.random().toString(36).slice(2,12);
 function loadScript(src){ return new Promise((res,rej)=>{ const sc=document.createElement('script'); sc.src=src; sc.onload=res; sc.onerror=rej; document.head.appendChild(sc); }); }
-function whoName(email){ if(!email) return 'alguém'; if(cloud.user&&email===cloud.user.email) return 'você, em outro aparelho'; return email.split('@')[0]; }
+function whoName(email){ if(!email||String(email).toLowerCase()===LOGIN_EMAIL) return 'outro aparelho'; if(!email) return 'alguém'; if(cloud.user&&email===cloud.user.email) return 'você, em outro aparelho'; return email.split('@')[0]; }
 /* Cloud sync rules:
    - this device's last cloud copy is cached, so the plan shows instantly even before the connection answers;
    - autosave only after the first answer from the cloud, so an old local copy never overwrites newer cloud data;
@@ -1498,17 +1518,22 @@ async function cloudInit(){
   try{ auth.getRedirectResult().catch(e=>{ if(e&&e.code) { cloud.err='Login: '+e.code; updateSaveState(); } }); }catch(e){}
   auth.onAuthStateChanged(u=>{ cloud.user=u||null; cloud.err='';
     if(u){ $('#cloudBanner').hidden=true; cloudConnect(); }
-    else { cloud.on=false; cloud.firstLoaded=false; if(cloud.unsub){ cloud.unsub(); cloud.unsub=null; } $('#cloudBanner').hidden=false; }
+    else { cloud.on=false; cloud.firstLoaded=false; if(cloud.unsub){ cloud.unsub(); cloud.unsub=null; } $('#lockTitle').textContent=plan.event.title||'Nosso Casamento'; $('#cloudBanner').hidden=false; setTimeout(()=>{ const i=$('#lockPass'); if(i&&!isPhone()) i.focus(); },50); }
     updateSaveState(); });
 }
-async function cloudLogin(){ if(!window.firebase){ toast('Ainda conectando ao Google… tente de novo em alguns segundos.'); return; }
-  const auth=firebase.auth(); const pr=new firebase.auth.GoogleAuthProvider(); pr.setCustomParameters({prompt:'select_account'});
-  try{ await auth.signInWithPopup(pr); }
+const LOGIN_EMAIL=(window.MAPA_LOGIN_EMAIL||'casamento@mesas-casamento.app').trim().toLowerCase();
+async function cloudLogin(pw){ const err=$('#lockErr'); err.textContent='';
+  if(!window.firebase){ err.textContent='Ainda conectando… tente de novo em alguns segundos.'; return; }
+  if(!pw){ $('#lockPass').focus(); return; }
+  const btn=$('#lockGo'); btn.disabled=true; btn.textContent='Entrando…';
+  try{ await firebase.auth().signInWithEmailAndPassword(LOGIN_EMAIL,pw); $('#lockPass').value=''; }
   catch(e){ const c=e&&e.code;
-    if(c==='auth/popup-blocked') toast('O navegador bloqueou a janela do Google. Permita pop-ups para este site e toque em Entrar de novo.');
-    else if(c==='auth/unauthorized-domain') toast('Este endereço ainda não está liberado no Firebase (Authentication → Configurações → Domínios autorizados).');
-    else if(c==='auth/operation-not-supported-in-this-environment'||c==='auth/web-storage-unsupported') toast('Abra o link direto no Safari ou no Chrome (não dentro do WhatsApp/Instagram) para entrar.');
-    else if(c!=='auth/popup-closed-by-user'&&c!=='auth/cancelled-popup-request') toast('Não foi possível entrar ('+(c||'erro')+').'); } }
+    err.textContent= (c==='auth/wrong-password'||c==='auth/invalid-credential'||c==='auth/invalid-login-credentials')?'Senha incorreta.':
+      c==='auth/user-not-found'?'O usuário do casal ainda não foi criado no Firebase.':
+      c==='auth/too-many-requests'?'Muitas tentativas. Espere alguns minutos e tente de novo.':
+      c==='auth/operation-not-allowed'?'Ative "E-mail/senha" em Authentication → Método de login.':
+      c==='auth/network-request-failed'?'Sem internet. Verifique a conexão.':'Não foi possível entrar ('+(c||'erro')+').'; }
+  btn.disabled=false; btn.textContent='Entrar'; }
 function cloudLogout(){ if(window.firebase) firebase.auth().signOut(); }
 function showOffer(local,remote){
   const b=$('#cloudConflict'); $('#cloudConflictTxt').textContent=`Este aparelho tem uma versão com ${local.guests.length} pessoas que não está na nuvem (a nuvem tem ${remote.guests.length}). Enviar esta versão para a nuvem?`;
@@ -1541,7 +1566,7 @@ function cloudConnect(){
     if(JSON.stringify(remote)===JSON.stringify(plan)){ dirty=false; cacheCloud(); updateSaveState(); return; }
     if(dirty){ showConflict(remote,d.who); return; }
     applyRemote(remote); toast(`Plano atualizado por ${whoName(d.who)}`);
-  }, err=>{ cloud.on=false; cloud.err= err&&err.code==='permission-denied'?`A conta ${cloud.user&&cloud.user.email||''} não tem permissão. Confira os e-mails nas regras do Firestore (e se o banco Firestore foi criado).`:'Erro na nuvem ('+(err&&err.code)+').'; updateSaveState(); toast(cloud.err); });
+  }, err=>{ cloud.on=false; cloud.err= err&&err.code==='permission-denied'?`O acesso ${cloud.user&&cloud.user.email||''} não tem permissão. Confira se as regras do Firestore têm esse mesmo e-mail e se foram publicadas.`:'Erro na nuvem ('+(err&&err.code)+').'; updateSaveState(); toast(cloud.err); });
 }
 function applyRemote(remote,quiet){ plan=remote; fixSel(); undoStack=[]; redoStack=[]; dirty=false; $('#cloudConflict').hidden=true; cacheCloud(); try{ localStorage.removeItem('mapa-draft'); }catch(e){} renderAll(); updateSaveState(); }
 async function cloudSave(){
@@ -1558,16 +1583,16 @@ function openCloudStatus(anchor){
   const u=cloud.user; const t=cloud.lastAt?new Date(cloud.lastAt).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}):'—';
   const line=(k,v)=>`<div style="display:flex;justify-content:space-between;gap:16px;padding:5px 10px;font-size:13px"><span class="muted" style="font-size:13px">${k}</span><b style="text-align:right">${v}</b></div>`;
   const p=popover(anchor,`<div style="padding:8px 10px 6px;font-weight:800">Nuvem</div>
-    ${line('Conta',u?esc(u.email||''):'não conectada')}
+    ${line('Acesso',u?'senha do casal':'bloqueado')}
     ${line('Situação',cloud.err?'<span class="warn">com problema</span>':!u?'aguardando login':!cloud.on?'conectando…':dirty||saving?'salvando…':'<span class="ok">sincronizado</span>')}
     ${line('Pessoas na nuvem',cloud.on?String(cloud.remoteCount??plan.guests.length):'—')}
     ${line('Última gravação',`${t}${cloud.lastWho?' · '+esc(whoName(cloud.lastWho)):''}`)}
     ${cloud.err?`<div class="muted" style="padding:6px 10px;max-width:320px">${esc(cloud.err)}</div>`:''}
-    <div style="display:flex;gap:6px;padding:8px 10px">${u?`<button class="btn sm" data-c="sync" style="width:auto">Salvar agora</button><button class="btn sm" data-c="out" style="width:auto">Sair</button>`:`<button class="btn sm primary" data-c="in" style="width:auto">Entrar com Google</button>`}</div>`);
-  p.addEventListener('click',e=>{ const b=e.target.closest('[data-c]'); if(!b) return; closePop(); ({sync:()=>cloudSave(),out:cloudLogout,in:cloudLogin})[b.dataset.c](); });
+    <div style="display:flex;gap:6px;padding:8px 10px">${u?`<button class="btn sm" data-c="sync" style="width:auto">Salvar agora</button><button class="btn sm" data-c="out" style="width:auto">Sair</button>`:`<button class="btn sm primary" data-c="in" style="width:auto">Digitar a senha</button>`}</div>`);
+  p.addEventListener('click',e=>{ const b=e.target.closest('[data-c]'); if(!b) return; closePop(); ({sync:()=>cloudSave(),out:cloudLogout,in:()=>{ $('#cloudBanner').hidden=false; $('#lockPass').focus(); }})[b.dataset.c](); });
 }
 async function save(){
-  if(CLOUD_CFG){ if(!cloud.user){ cloudLogin(); return; } return cloudSave(); }
+  if(CLOUD_CFG){ if(!cloud.user){ $('#cloudBanner').hidden=false; $('#lockPass').focus(); return; } return cloudSave(); }
   if(ui.readOnly||saving) return;
   if(document.activeElement&&document.activeElement.blur) document.activeElement.blur();
   const prev=plan.savedAt; plan.savedAt=new Date().toISOString();
@@ -1606,7 +1631,8 @@ function bind(){
   $('#btnSize').onclick=e=>{ const pop=popover(e.currentTarget,`<div style="padding:8px 10px 4px;font-weight:700">Tamanho da interface</div><div class="muted" style="padding:0 10px 6px">Vale só para este aparelho. A planta não muda.</div>${[['auto','Automático','Ajusta à largura da tela'],['p','Pequeno',''],['n','Normal',''],['g','Grande',''],['gg','Muito grande','']].map(([k,l,d])=>`<button data-uiz="${k}"><span><b>${l}${getUizPref()===k?' ✓':''}</b>${d?`<small>${d}</small>`:''}</span></button>`).join('')}`);
     pop.addEventListener('click',ev=>{ const b=ev.target.closest('[data-uiz]'); if(!b) return; try{ localStorage.setItem('mapa-uiz',b.dataset.uiz); }catch(_){} closePop(); applyUiz(); requestAnimationFrame(()=>ed.fit()); }); };
   $('#sheetHandle').onclick=()=>setSheet(!ui.sheet);
-  $('#cloudLoginBtn').onclick=cloudLogin;
+  $('#lockForm').addEventListener('submit',e=>{ e.preventDefault(); cloudLogin($('#lockPass').value); });
+  $('#lockUser').value=(window.MAPA_LOGIN_EMAIL||'casamento@mesas-casamento.app');
   $('#ccMine').onclick=()=>{ $('#cloudConflict').hidden=true; if(cloud.mode==='offer'){ cloud.pending=null; return; } cloud.pending=null; cloudSave(); };
   $('#ccTheirs').onclick=()=>{ const pend=cloud.pending; cloud.pending=null; $('#cloudConflict').hidden=true; if(!pend) return;
     if(cloud.mode==='offer'){ plan=pend; fixSel(); renderAll(); dirty=true; cloudSave(); toast(`Enviando ${plan.guests.length} pessoas para a nuvem…`); } else applyRemote(pend); };
