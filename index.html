@@ -577,7 +577,7 @@ const RESET = ':root{color-scheme:light;padding-top:env(safe-area-inset-top,0px)
 const HAS_CLAUDE = !!(window.claude && typeof window.claude.use === 'function');
 /* ====== shared cloud copy (Firebase) — only when the file is hosted outside Claude and a config was pasted ====== */
 const CLOUD_CFG = (!HAS_CLAUDE && window.MAPA_FIREBASE && window.MAPA_FIREBASE.apiKey && window.MAPA_FIREBASE.apiKey!=='COLE_AQUI') ? window.MAPA_FIREBASE : null;
-const cloud={on:false,user:null,ref:null,unsub:null,lastRev:null,firstLoaded:false,pending:null,pendingWho:''};
+const cloud={on:false,user:null,ref:null,unsub:null,lastRev:null,firstLoaded:false,pending:null,pendingWho:'',mode:'',err:'',remoteCount:null,lastAt:'',lastWho:''};
 
 /* ====== helpers ====== */
 const $ = (s,r=document)=>r.querySelector(s);
@@ -661,7 +661,8 @@ function normalizePlan(p){
 /* ====== state ====== */
 const EMBEDDED = loadEmbedded();
 let plan = normalizePlan(EMBEDDED ? JSON.parse(JSON.stringify(EMBEDDED)) : defaultPlan());
-if(!HAS_CLAUDE){ try{ const s=localStorage.getItem('mapa-local-saved'); if(s){ const p=JSON.parse(s); if(p&&p.elements) plan=normalizePlan(p);} }catch(e){} }
+if(CLOUD_CFG){ try{ const c=JSON.parse(localStorage.getItem('mapa-cloud-cache')||'null'); if(c&&c.elements) plan=normalizePlan(c); }catch(e){} }
+if(!HAS_CLAUDE&&!CLOUD_CFG){ try{ const s=localStorage.getItem('mapa-local-saved'); if(s){ const p=JSON.parse(s); if(p&&p.elements) plan=normalizePlan(p);} }catch(e){} }
 const BASE = plan.savedAt||'inicial';
 let undoStack=[], redoStack=[], dirty=false, saving=false;
 const ui = {view:'editor', sel:null, hlGuest:null, snap:true, showEmpty:false, showNames:false, lights:true, readOnly:false, gSearch:'', gFilter:'all', gSide:'all', gComp:'all', gSort:'table', openRows:new Set(), sheet:false};
@@ -717,7 +718,7 @@ function undo(){ if(!undoStack.length) return; redoStack.push(snap()); plan=JSON
 function redo(){ if(!redoStack.length) return; undoStack.push(snap()); plan=JSON.parse(redoStack.pop()); fixSel(); setDirty(); renderAll(); }
 function fixSel(){ if(ui.sel && !byId(ui.sel)) ui.sel=null; }
 let draftT=null, numberWarn=false, cloudT=null;
-function setDirty(){ dirty=true; updateSaveState(); if(CLOUD_CFG&&cloud.on){ clearTimeout(cloudT); cloudT=setTimeout(()=>cloudSave(),1200); } clearTimeout(draftT); draftT=setTimeout(()=>{ try{ localStorage.setItem('mapa-draft', JSON.stringify({base:BASE, plan})); }catch(e){} },400); }
+function setDirty(){ dirty=true; updateSaveState(); if(CLOUD_CFG&&cloud.on&&cloud.firstLoaded){ clearTimeout(cloudT); cloudT=setTimeout(()=>cloudSave(),1200); } clearTimeout(draftT); draftT=setTimeout(()=>{ try{ localStorage.setItem('mapa-draft', JSON.stringify({base:BASE, plan})); }catch(e){} },400); }
 
 /* ====== SVG rendering ====== */
 function seatPositions(el,total){
@@ -1004,7 +1005,7 @@ function updateHeader(){
 function updateSaveState(){
   const p=$('#saveState');
   if(CLOUD_CFG){ const off=!cloud.on; p.className='pill'+(saving?' busy':(dirty||off)?' dirty':'');
-    p.lastElementChild.textContent= !cloud.user?'Não conectado': off?'Conectando…': saving?'Salvando…': dirty?'Salvando em instantes':'Sincronizado';
+    p.lastElementChild.textContent= cloud.err?'Problema na nuvem': !cloud.user?'Não conectado': off?'Conectando…': saving?'Salvando…': dirty?'Salvando em instantes':'Sincronizado'; if(cloud.err) p.className='pill dirty';
     $('#btnSave').hidden=false; $('#btnSave').title=cloud.user?'Salvar agora (já salva sozinho)':'Entrar com Google'; return; }
   p.className='pill'+(saving?' busy':dirty?' dirty':'');
   p.lastElementChild.textContent= ui.readOnly?'Somente visualização': saving?'Salvando…': dirty?'Alterações não salvas':'Tudo salvo';
@@ -1410,7 +1411,7 @@ async function exportPng(){
 }
 function exportBackup(){ saveFile(fileBase()+'-backup.json', JSON.stringify(plan,null,1)); }
 function restoreBackup(){
-  if(ui.readOnly) return; if(CLOUD_CFG&&!cloud.user){ toast('Entre com o Google antes de restaurar o backup.'); return; }
+  if(ui.readOnly) return; 
   const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json';
   inp.onchange=()=>{ const f=inp.files&&inp.files[0]; if(!f) return; const r=new FileReader();
     r.onload=()=>{ let d; try{ d=JSON.parse(r.result); }catch(e){ toast('Esse arquivo não é um backup válido.'); return; }
@@ -1479,48 +1480,91 @@ let artNs;
 const CLIENT_ID=Math.random().toString(36).slice(2,12);
 function loadScript(src){ return new Promise((res,rej)=>{ const sc=document.createElement('script'); sc.src=src; sc.onload=res; sc.onerror=rej; document.head.appendChild(sc); }); }
 function whoName(email){ if(!email) return 'alguém'; if(cloud.user&&email===cloud.user.email) return 'você, em outro aparelho'; return email.split('@')[0]; }
+/* Cloud sync rules:
+   - this device's last cloud copy is cached, so the plan shows instantly even before the connection answers;
+   - autosave only after the first answer from the cloud, so an old local copy never overwrites newer cloud data;
+   - if this device holds a fuller version that never reached the cloud, offer to send it with one click. */
+const CACHE_KEY='mapa-cloud-cache';
+function cacheCloud(){ try{ localStorage.setItem(CACHE_KEY,JSON.stringify(plan)); }catch(e){} }
+function readCache(){ try{ const c=JSON.parse(localStorage.getItem(CACHE_KEY)||'null'); return c&&c.elements?normalizePlan(c):null; }catch(e){ return null; } }
+function readDraft(){ try{ const d=JSON.parse(localStorage.getItem('mapa-draft')||'null'); return d&&d.plan&&d.plan.elements?normalizePlan(d.plan):null; }catch(e){ return null; } }
 async function cloudInit(){
   if(!CLOUD_CFG) return; updateSaveState();
   try{ if(!window.firebase){ const b='https://www.gstatic.com/firebasejs/10.12.2/'; await loadScript(b+'firebase-app-compat.js'); await loadScript(b+'firebase-auth-compat.js'); await loadScript(b+'firebase-firestore-compat.js'); } }
-  catch(e){ toast('Não consegui conectar à nuvem. Verifique a internet e recarregue a página.'); return; }
+  catch(e){ cloud.err='Sem internet ou o Google não respondeu. Recarregue a página.'; updateSaveState(); toast(cloud.err); return; }
   if(!firebase.apps||!firebase.apps.length) firebase.initializeApp(CLOUD_CFG);
-  const auth=firebase.auth(); try{ auth.getRedirectResult().catch(()=>{}); }catch(e){}
-  auth.onAuthStateChanged(u=>{ cloud.user=u||null;
+  const auth=firebase.auth();
+  try{ await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(e){}
+  try{ auth.getRedirectResult().catch(e=>{ if(e&&e.code) { cloud.err='Login: '+e.code; updateSaveState(); } }); }catch(e){}
+  auth.onAuthStateChanged(u=>{ cloud.user=u||null; cloud.err='';
     if(u){ $('#cloudBanner').hidden=true; cloudConnect(); }
-    else { cloud.on=false; if(cloud.unsub){ cloud.unsub(); cloud.unsub=null; } $('#cloudBanner').hidden=false; }
+    else { cloud.on=false; cloud.firstLoaded=false; if(cloud.unsub){ cloud.unsub(); cloud.unsub=null; } $('#cloudBanner').hidden=false; }
     updateSaveState(); });
 }
-async function cloudLogin(){ if(!window.firebase) return; const auth=firebase.auth(); const pr=new firebase.auth.GoogleAuthProvider(); pr.setCustomParameters({prompt:'select_account'});
+async function cloudLogin(){ if(!window.firebase){ toast('Ainda conectando ao Google… tente de novo em alguns segundos.'); return; }
+  const auth=firebase.auth(); const pr=new firebase.auth.GoogleAuthProvider(); pr.setCustomParameters({prompt:'select_account'});
   try{ await auth.signInWithPopup(pr); }
-  catch(e){ const c=e&&e.code; if(c==='auth/popup-blocked'||c==='auth/operation-not-supported-in-this-environment'){ await auth.signInWithRedirect(pr); }
+  catch(e){ const c=e&&e.code;
+    if(c==='auth/popup-blocked') toast('O navegador bloqueou a janela do Google. Permita pop-ups para este site e toque em Entrar de novo.');
     else if(c==='auth/unauthorized-domain') toast('Este endereço ainda não está liberado no Firebase (Authentication → Configurações → Domínios autorizados).');
+    else if(c==='auth/operation-not-supported-in-this-environment'||c==='auth/web-storage-unsupported') toast('Abra o link direto no Safari ou no Chrome (não dentro do WhatsApp/Instagram) para entrar.');
     else if(c!=='auth/popup-closed-by-user'&&c!=='auth/cancelled-popup-request') toast('Não foi possível entrar ('+(c||'erro')+').'); } }
 function cloudLogout(){ if(window.firebase) firebase.auth().signOut(); }
+function showOffer(local,remote){
+  const b=$('#cloudConflict'); $('#cloudConflictTxt').textContent=`Este aparelho tem uma versão com ${local.guests.length} pessoas que não está na nuvem (a nuvem tem ${remote.guests.length}). Enviar esta versão para a nuvem?`;
+  $('#ccMine').textContent='Não, usar a da nuvem'; $('#ccTheirs').textContent='Enviar para a nuvem';
+  cloud.mode='offer'; cloud.pending=local; cloud.remote=remote; b.hidden=false; }
+function showConflict(remote,who){
+  $('#cloudConflictTxt').textContent=`${whoName(who)} salvou alterações enquanto você editava.`;
+  $('#ccMine').textContent='Manter as minhas'; $('#ccTheirs').textContent='Ver as alterações novas';
+  cloud.mode='conflict'; cloud.pending=remote; $('#cloudConflict').hidden=false; }
 function cloudConnect(){
   cloud.ref=firebase.firestore().collection('planos').doc(window.MAPA_DOC||'casamento');
   if(cloud.unsub) cloud.unsub();
   cloud.unsub=cloud.ref.onSnapshot(snap=>{
     if(snap.metadata&&snap.metadata.hasPendingWrites) return;
-    const firstTime=!cloud.on; cloud.on=true;
-    if(!snap.exists){ cloud.firstLoaded=true; cloudSave(); toast('Plano enviado para a nuvem. A partir de agora tudo sincroniza.'); return; }
+    const first=!cloud.firstLoaded; cloud.on=true; cloud.err='';
+    const draft=first?readDraft():null;
+    if(!snap.exists){ // empty cloud: send the fullest version this device has
+      if(draft&&draft.guests.length>plan.guests.length) plan=draft;
+      cloud.firstLoaded=true; cloudSave(true); renderAll(); toast('Plano enviado para a nuvem. A partir de agora tudo sincroniza sozinho.'); return; }
     const d=snap.data()||{};
     if(d.by===CLIENT_ID&&d.rev===cloud.lastRev){ updateSaveState(); return; }
     let remote; try{ remote=normalizePlan(JSON.parse(d.json)); }catch(e){ return; }
-    cloud.lastRev=d.rev;
-    if(JSON.stringify(remote)===JSON.stringify(plan)){ cloud.firstLoaded=true; dirty=false; updateSaveState(); return; }
-    if(dirty&&cloud.firstLoaded){ cloud.pending=remote; cloud.pendingWho=d.who; $('#cloudConflictTxt').textContent=`${whoName(d.who)} salvou alterações enquanto você editava.`; $('#cloudConflict').hidden=false; return; }
-    applyRemote(remote); if(!firstTime&&cloud.firstLoaded) toast(`Plano atualizado por ${whoName(d.who)}`); cloud.firstLoaded=true;
-  }, err=>{ cloud.on=false; updateSaveState(); toast(err&&err.code==='permission-denied'?'Esta conta Google não tem permissão. Confira os e-mails nas regras do Firestore.':'Erro na nuvem ('+(err&&err.code)+').'); });
+    cloud.lastRev=d.rev; cloud.remoteCount=remote.guests.length; cloud.lastAt=d.at||''; cloud.lastWho=d.who||'';
+    if(first){
+      cloud.firstLoaded=true;
+      const localBest = [dirty?plan:null, draft].filter(Boolean).sort((a,b)=>b.guests.length-a.guests.length)[0];
+      applyRemote(remote,true);
+      if(localBest && localBest.guests.length>remote.guests.length && JSON.stringify(localBest.guests)!==JSON.stringify(remote.guests)) showOffer(localBest,remote);
+      return; }
+    if(JSON.stringify(remote)===JSON.stringify(plan)){ dirty=false; cacheCloud(); updateSaveState(); return; }
+    if(dirty){ showConflict(remote,d.who); return; }
+    applyRemote(remote); toast(`Plano atualizado por ${whoName(d.who)}`);
+  }, err=>{ cloud.on=false; cloud.err= err&&err.code==='permission-denied'?`A conta ${cloud.user&&cloud.user.email||''} não tem permissão. Confira os e-mails nas regras do Firestore (e se o banco Firestore foi criado).`:'Erro na nuvem ('+(err&&err.code)+').'; updateSaveState(); toast(cloud.err); });
 }
-function applyRemote(remote){ plan=remote; fixSel(); undoStack=[]; redoStack=[]; dirty=false; $('#cloudConflict').hidden=true; renderAll(); updateSaveState(); }
+function applyRemote(remote,quiet){ plan=remote; fixSel(); undoStack=[]; redoStack=[]; dirty=false; $('#cloudConflict').hidden=true; cacheCloud(); try{ localStorage.removeItem('mapa-draft'); }catch(e){} renderAll(); updateSaveState(); }
 async function cloudSave(){
-  if(!cloud.ref||!cloud.user) return; clearTimeout(cloudT);
+  if(!cloud.ref||!cloud.user||!cloud.firstLoaded) return; clearTimeout(cloudT);
   if(saving){ cloudT=setTimeout(()=>cloudSave(),800); return; }
   saving=true; updateSaveState(); const rev=Math.random().toString(36).slice(2,12); cloud.lastRev=rev; plan.savedAt=new Date().toISOString();
   const snapshotJson=JSON.stringify(plan);
-  try{ await cloud.ref.set({json:snapshotJson,by:CLIENT_ID,rev,who:cloud.user.email||'',at:new Date().toISOString()}); saving=false; if(JSON.stringify(plan)===snapshotJson) dirty=false; $('#cloudConflict').hidden=true; try{ localStorage.removeItem('mapa-draft'); }catch(e){} }
-  catch(e){ saving=false; toast(e&&e.code==='permission-denied'?'Sem permissão para salvar com esta conta.':'Não foi possível salvar na nuvem agora. Tentando de novo…'); if(!(e&&e.code==='permission-denied')) cloudT=setTimeout(()=>cloudSave(),4000); }
+  try{ await cloud.ref.set({json:snapshotJson,by:CLIENT_ID,rev,who:cloud.user.email||'',at:new Date().toISOString(),pessoas:plan.guests.length});
+    saving=false; cloud.err=''; cloud.remoteCount=plan.guests.length; cloud.lastAt=new Date().toISOString(); cloud.lastWho=cloud.user.email||''; if(JSON.stringify(plan)===snapshotJson) dirty=false; cacheCloud(); try{ localStorage.removeItem('mapa-draft'); }catch(e){} }
+  catch(e){ saving=false; cloud.err=e&&e.code==='permission-denied'?'Sem permissão para salvar com esta conta.':'Não foi possível salvar na nuvem agora. Tentando de novo…'; toast(cloud.err); if(!(e&&e.code==='permission-denied')) cloudT=setTimeout(()=>cloudSave(),4000); }
   updateSaveState();
+}
+function openCloudStatus(anchor){
+  const u=cloud.user; const t=cloud.lastAt?new Date(cloud.lastAt).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}):'—';
+  const line=(k,v)=>`<div style="display:flex;justify-content:space-between;gap:16px;padding:5px 10px;font-size:13px"><span class="muted" style="font-size:13px">${k}</span><b style="text-align:right">${v}</b></div>`;
+  const p=popover(anchor,`<div style="padding:8px 10px 6px;font-weight:800">Nuvem</div>
+    ${line('Conta',u?esc(u.email||''):'não conectada')}
+    ${line('Situação',cloud.err?'<span class="warn">com problema</span>':!u?'aguardando login':!cloud.on?'conectando…':dirty||saving?'salvando…':'<span class="ok">sincronizado</span>')}
+    ${line('Pessoas na nuvem',cloud.on?String(cloud.remoteCount??plan.guests.length):'—')}
+    ${line('Última gravação',`${t}${cloud.lastWho?' · '+esc(whoName(cloud.lastWho)):''}`)}
+    ${cloud.err?`<div class="muted" style="padding:6px 10px;max-width:320px">${esc(cloud.err)}</div>`:''}
+    <div style="display:flex;gap:6px;padding:8px 10px">${u?`<button class="btn sm" data-c="sync" style="width:auto">Salvar agora</button><button class="btn sm" data-c="out" style="width:auto">Sair</button>`:`<button class="btn sm primary" data-c="in" style="width:auto">Entrar com Google</button>`}</div>`);
+  p.addEventListener('click',e=>{ const b=e.target.closest('[data-c]'); if(!b) return; closePop(); ({sync:()=>cloudSave(),out:cloudLogout,in:cloudLogin})[b.dataset.c](); });
 }
 async function save(){
   if(CLOUD_CFG){ if(!cloud.user){ cloudLogin(); return; } return cloudSave(); }
@@ -1563,8 +1607,10 @@ function bind(){
     pop.addEventListener('click',ev=>{ const b=ev.target.closest('[data-uiz]'); if(!b) return; try{ localStorage.setItem('mapa-uiz',b.dataset.uiz); }catch(_){} closePop(); applyUiz(); requestAnimationFrame(()=>ed.fit()); }); };
   $('#sheetHandle').onclick=()=>setSheet(!ui.sheet);
   $('#cloudLoginBtn').onclick=cloudLogin;
-  $('#ccMine').onclick=()=>{ $('#cloudConflict').hidden=true; cloud.pending=null; cloudSave(); };
-  $('#ccTheirs').onclick=()=>{ if(cloud.pending) applyRemote(cloud.pending); cloud.pending=null; };
+  $('#ccMine').onclick=()=>{ $('#cloudConflict').hidden=true; if(cloud.mode==='offer'){ cloud.pending=null; return; } cloud.pending=null; cloudSave(); };
+  $('#ccTheirs').onclick=()=>{ const pend=cloud.pending; cloud.pending=null; $('#cloudConflict').hidden=true; if(!pend) return;
+    if(cloud.mode==='offer'){ plan=pend; fixSel(); renderAll(); dirty=true; cloudSave(); toast(`Enviando ${plan.guests.length} pessoas para a nuvem…`); } else applyRemote(pend); };
+  $('#saveState').style.cursor='pointer'; $('#saveState').onclick=e=>{ if(CLOUD_CFG) openCloudStatus(e.currentTarget); };
   $('#roUnlock').onclick=()=>{ setReadOnly(false); setView('editor'); toast('Edição liberada. Se esta conta não puder salvar, o botão Salvar avisa.'); };
   $('#selbar').addEventListener('click',e=>{ const b=e.target.closest('[data-sb]'); if(!b||b.disabled) return; const a=b.dataset.sb; const el=byId(ui.sel); if(!el) return;
     if(a==='bigger') resizeSel(1.1); else if(a==='smaller') resizeSel(1/1.1); else if(a==='rotl') rotateSel(-15); else if(a==='rotr') rotateSel(15);
