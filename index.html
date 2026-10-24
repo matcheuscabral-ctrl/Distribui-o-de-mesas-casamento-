@@ -285,6 +285,7 @@ textarea.inp{min-height:150px;font-family:ui-monospace,SFMono-Regular,Menlo,mono
 .ofTag{display:block;font-size:10.5px;color:var(--ink-3);padding:0 8px;margin-top:-3px}
 .side-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
 .tcard .grp{font-size:11.5px;color:var(--ink-3)}
+#cerCerim{zoom:var(--uiz,1)}
 .sides{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 .sides .fld{flex:1 1 180px}
 .ctag{background:var(--accent-soft);color:var(--accent)}
@@ -299,6 +300,26 @@ textarea.inp{min-height:150px;font-family:ui-monospace,SFMono-Regular,Menlo,mono
 }
 /* ---- legibility on laptops/desktops: header, side columns and lists scale with --uiz (the map keeps 1:1) */
 .top,.banner,.rail,.panel,#view-guests .wrap,.cer-hero,.cer-stats,.cer-side,.cer h2,.cards,#cerUnassigned,.pop,.modal,#edStage .floatbar,#edStage .zoombar,#edStage .selbar,#edStage .hint{zoom:var(--uiz,1)}
+.cerim{overflow:hidden}
+.cm-grid{display:grid;grid-template-columns:minmax(0,1fr) calc(clamp(340px,26vw,460px) * var(--uiz,1));gap:12px;height:100%;padding-block:12px;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+.cm-stage{position:relative;overflow:auto;background:#7d9c57;min-height:0}
+.cm-svg{display:block;width:100%;height:100%;min-height:100%}
+.cm-svg [data-bench],.cm-svg [data-seat]{cursor:pointer}
+.cm-bar{left:auto;right:12px;justify-content:flex-end;zoom:var(--uiz,1)}
+.cm-panel{overflow-y:auto;min-width:0;zoom:var(--uiz,1)}
+.cm-list li{min-height:44px}
+.cm-name{flex:1;min-width:0;font-size:14.5px;font-weight:600}.cm-name small{display:block;font-weight:500;font-size:12px;color:var(--ink-3)}
+.cm-pick{display:grid;grid-template-columns:1fr 1fr;gap:14px}.cm-pick h4{margin:0 0 8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.cm-pick .seatgrid{grid-template-columns:repeat(auto-fill,minmax(64px,1fr))}.cm-pick .seatgrid b{font-size:22px}
+.results button[disabled]{opacity:.5;cursor:default}
+@media (max-width:760px){
+  .cerim{overflow-y:auto}
+  .cm-grid{display:block;height:auto;padding:0 0 20px}
+  .cm-stage{border-radius:0;border:0;overflow:visible}
+  .cm-svg{height:auto;min-height:0}
+  .cm-bar{top:8px;right:8px}
+  .cm-panel{margin:10px 12px 0;border-radius:16px}
+}
 .lock{position:fixed;inset:0;z-index:70;background:var(--bg);display:grid;place-items:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px}
 .lock-card{width:min(400px,100%);background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:30px 26px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
 .lock-card h2{font-family:var(--f-display);font-style:italic;font-weight:500;font-size:40px;margin:0;line-height:1}
@@ -420,6 +441,7 @@ textarea.inp{min-height:150px;font-family:ui-monospace,SFMono-Regular,Menlo,mono
     <nav class="tabs" role="tablist" aria-label="Seções">
       <button class="tab" role="tab" data-view="editor" id="tab-editor" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg><span class="tl">Planta</span></button>
       <button class="tab" role="tab" data-view="guests" id="tab-guests" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/><path d="M16 4a4 4 0 010 8M22 21c0-3-2-5-4-5.6"/></svg><span class="tl">Convidados</span> <span class="cnt" id="cntGuests">0</span></button>
+      <button class="tab" role="tab" data-view="cerim" id="tab-cerim" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V11a7 7 0 0114 0v10"/><path d="M3 21h18M9 21v-6h6v6"/></svg><span class="tl">Cerimônia</span></button>
       <button class="tab" role="tab" data-view="cer" id="tab-cer" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg><span class="tl">Cerimonial</span></button>
     </nav>
     <div class="top-actions">
@@ -498,6 +520,15 @@ textarea.inp{min-height:150px;font-family:ui-monospace,SFMono-Regular,Menlo,mono
       </div>
     </section>
 
+    <section class="view cerim" id="view-cerim" hidden aria-labelledby="tab-cerim">
+      <div class="cm-grid">
+        <div class="card cm-stage">
+          <svg id="cmSvg" class="cm-svg" preserveAspectRatio="xMidYMin meet" aria-label="Bancos da cerimônia no jardim"></svg>
+          <div class="floatbar cm-bar"><div class="fgroup"><button class="fbtn" id="cmNames" aria-pressed="false">Nomes</button><button class="fbtn" id="cmPng">Imagem</button><button class="fbtn" id="cmXlsx">Excel</button></div></div>
+        </div>
+        <aside class="card cm-panel" id="cmPanel" aria-live="polite"></aside>
+      </div>
+    </section>
     <section class="view cer scroll" id="view-cer" hidden aria-labelledby="tab-cer">
       <div class="wrap" style="max-width:1320px">
         <div class="cer-hero">
@@ -522,6 +553,7 @@ textarea.inp{min-height:150px;font-family:ui-monospace,SFMono-Regular,Menlo,mono
         <h2>Mesas</h2>
         <div class="cards" id="cerCards"></div>
         <div id="cerUnassigned"></div>
+        <div id="cerCerim"></div>
         <div class="cer-foot" id="cerFoot"></div>
       </div>
     </section>
@@ -675,7 +707,8 @@ function normalizePlan(p){
   p.event=Object.assign({title:'',date:'',venue:'',notes:''},p.event||{});
   p.hall=p.hall||{w:2100,h:2600}; p.elements=p.elements||[]; p.guests=p.guests||[];
   if(p.autoNumber===undefined) p.autoNumber=true;
-  p.guests.forEach(g=>{g.kind=g.kind||'Adulto';g.group=g.group||'';g.note=g.note||'';g.phone=g.phone||'';g.side=g.side||'';g.of=g.of||null;});
+  p.ceremony=Object.assign({rows:10,perBench:5,angle:14,treeEvery:2,left:'Noiva',right:'Noivo',names:false},p.ceremony||{});
+  p.guests.forEach(g=>{g.cb=g.cb||null; g.cs=(g.cs==null?null:g.cs); g.kind=g.kind||'Adulto';g.group=g.group||'';g.note=g.note||'';g.phone=g.phone||'';g.side=g.side||'';g.of=g.of||null;});
   return p;
 }
 
@@ -1018,6 +1051,7 @@ function renderAll(){
   ed.render(); renderPanel(); updateHeader(); updateUndo();
   if(ui.view==='guests') renderGuests();
   if(ui.view==='cer'){ cer.render(); renderCer(); }
+  if(ui.view==='cerim') renderCerim();
 }
 function updateUndo(){ $('#bUndo').disabled=!undoStack.length||ui.readOnly; $('#bRedo').disabled=!redoStack.length||ui.readOnly; }
 function fmtDate(s){ if(!s) return ''; const d=new Date(s+'T12:00:00'); if(isNaN(d)) return s; return d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }
@@ -1251,6 +1285,8 @@ function renderCer(){
     ${gs.length?`<ol>${gs.map(g=>`<li>${esc(g.name)}${g.kind!=='Adulto'?` <span class="tag">${esc(g.kind)}</span>`:''}${(g.group&&g.group!=='Acompanhante')||hostOf(g)?` <span class="grp">· ${esc(hostOf(g)?'acomp. de '+hostOf(g).name.split(' ')[0]:g.group)}</span>`:''}${g.note?`<span class="note">${esc(g.note)}</span>`:''}</li>`).join('')}</ol>`:`<div class="muted">Mesa livre</div>`}</article>`; }).join('');
   const un=plan.guests.filter(g=>!g.table||!byId(g.table));
   $('#cerUnassigned').innerHTML=un.length?`<h2 style="margin-top:34px">Ainda sem mesa</h2><div class="card" style="padding:16px"><div class="chips">${un.map(g=>`<span class="chip" style="cursor:default">${esc(g.name)}</span>`).join('')}</div></div>`:'';
+  const cmb=cmBenches().filter(b=>cmOn(b.code).length);
+  $('#cerCerim').innerHTML=cmb.length?`<h2 style="margin-top:34px">Cerimônia · bancos</h2><div class="cards">${cmb.map(b=>`<article class="card tcard"><header><span class="big">${b.code}</span><span class="tt"><div>${esc(cmSideName(b.side))} · fileira ${b.row}</div><span>${cmOn(b.code).length} de ${cmCfg().perBench} lugares</span></span></header><ol>${cmOn(b.code).map(g=>`<li value="${g.cs+1}">${esc(g.name)}</li>`).join('')}</ol></article>`).join('')}</div>`:'';
   $('#cerFoot').textContent=plan.savedAt?`Plano atualizado em ${new Date(plan.savedAt).toLocaleString('pt-BR',{dateStyle:'long',timeStyle:'short'})}`:'Plano ainda não salvo';
   renderCerResults();
 }
@@ -1262,6 +1298,186 @@ function renderCerResults(){
 }
 function flashTable(id){ cerUi.hl=id; cer.renderOver(); const el=byId(id); if(el) cer.centerOn(el); const c=$('#card-'+id); $$('.tcard.flash').forEach(x=>x.classList.remove('flash')); if(c){ c.classList.add('flash'); }
   clearTimeout(flashTable.t); flashTable.t=setTimeout(()=>{ cerUi.hl=null; cer.renderOver(); },6000); }
+
+/* ====== Cerimônia: bancos no jardim ======
+   Top view of the garden ceremony: altar at the top, central aisle (two paved strips with grass between),
+   wooden benches on both sides angled toward the altar, cypress trees along both sides of the aisle.
+   Benches are E1..En (left, facing the altar) and D1..Dn (right); row 1 is nearest the altar.
+   A guest's ceremony seat is g.cb (bench code) + g.cs (seat index, 0 = aisle end). */
+const cmUi={sel:null};
+function cmCfg(){ return plan.ceremony; }
+function cmBenches(){ const c=cmCfg(), out=[]; for(let r=1;r<=c.rows;r++){ out.push({code:'E'+r,side:'L',row:r}); out.push({code:'D'+r,side:'R',row:r}); } return out; }
+function cmIsCouple(g){ const t=g.table&&byId(g.table); return !!(t&&t.type==='head'); }
+function cmPeople(){ return plan.guests.filter(g=>!cmIsCouple(g)); }
+function cmOn(code){ return plan.guests.filter(g=>g.cb===code).sort((a,b)=>(a.cs??0)-(b.cs??0)); }
+function cmSeatAt(code,i){ return plan.guests.find(g=>g.cb===code&&g.cs===i)||null; }
+function cmFree(code){ const n=cmCfg().perBench; for(let i=0;i<n;i++){ if(!cmSeatAt(code,i)) return i; } return -1; }
+function cmSideName(side){ const c=cmCfg(); return side==='L'?c.left:c.right; }
+function cmBenchTitle(code){ return `Banco ${code}`; }
+function cmGeom(){
+  const c=cmCfg(); const L=c.perBench*54, D=44, aisle=270, gapTree=96, rowGap=118, top=430;
+  const W=2*(aisle/2+gapTree+L+80), cx=W/2, H=top+c.rows*rowGap+160;
+  const benchX=side=>side==='L'? cx-(aisle/2+gapTree+L/2) : cx+(aisle/2+gapTree+L/2);
+  const rowY=r=>top+(r-1)*rowGap;
+  return {c,L,D,aisle,gapTree,rowGap,top,W,H,cx,benchX,rowY};
+}
+function cmSeatPos(G,b,i){ // local seat position along the bench; seat 0 at the aisle end
+  const n=G.c.perBench, step=G.L/n, fromAisle=-G.L/2+step*(i+.5); return b.side==='L'? -fromAisle : fromAisle; }
+function cmSVG(){
+  const G=cmGeom(), c=G.c; const ang=c.angle;
+  let s=`<defs><radialGradient id="cyp" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#5d8247"/><stop offset=".6" stop-color="#34552a"/><stop offset="1" stop-color="#22381b"/></radialGradient>
+    <linearGradient id="pave" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9b2a5"/><stop offset="1" stop-color="#a59e91"/></linearGradient></defs>`;
+  s+=`<rect x="-400" y="-400" width="${G.W+800}" height="${G.H+800}" fill="#7d9c57"/><rect x="-400" y="-400" width="${G.W+800}" height="${G.H+800}" fill="url(#grass)" opacity=".85"/>`;
+  // aisle: two paved strips with grass in between, running from the altar to the entrance
+  const pw=78, a0=G.cx-G.aisle/2;
+  s+=`<rect x="${a0}" y="240" width="${pw}" height="${G.H}" fill="url(#pave)"/><rect x="${G.cx+G.aisle/2-pw}" y="240" width="${pw}" height="${G.H}" fill="url(#pave)"/>`;
+  s+=`<path d="M${a0} 240V${G.H+300}M${a0+pw} 240V${G.H+300}M${G.cx+G.aisle/2-pw} 240V${G.H+300}M${G.cx+G.aisle/2} 240V${G.H+300}" stroke="#8d8678" stroke-width="2" opacity=".6"/>`;
+  // altar
+  s+=`<g transform="translate(${G.cx} 150)"><ellipse cx="0" cy="40" rx="250" ry="70" fill="#efe9dd" opacity=".55"/>
+    <path d="M-120 60 A120 120 0 0 1 120 60" fill="none" stroke="#f7f2e8" stroke-width="16" stroke-linecap="round" filter="url(#shs)"/>
+    ${[-110,-80,-45,0,45,80,110].map((x,i)=>`<circle cx="${x}" cy="${60-Math.sqrt(Math.max(0,120*120-x*x))+0}" r="${i%2?14:18}" fill="${i%3?'#e9a6b8':'#fffaf2'}" stroke="#d58ea2" stroke-width="1.5"/>`).join('')}
+    <rect x="-70" y="50" width="140" height="44" rx="6" fill="#f8f4ec" stroke="#d9d0c1" stroke-width="2" filter="url(#sh)"/>
+    <text y="80" text-anchor="middle" font-family="Cormorant Garamond,Georgia,serif" font-style="italic" font-weight="600" font-size="30" fill="#6b5a3e">Altar</text></g>`;
+  // pampas tufts at the aisle start (white flowers in the photo)
+  [[G.cx-G.aisle/2-30,300],[G.cx+G.aisle/2+30,300]].forEach(([x,y])=>{ let t=''; for(let k=0;k<9;k++){ const a=-Math.PI/2+(k-4)*0.28; t+=`<path d="M0 0 Q${Math.cos(a)*30} ${Math.sin(a)*30} ${Math.cos(a)*48} ${Math.sin(a)*48}" stroke="#f6f1e6" stroke-width="7" stroke-linecap="round" fill="none"/>`; }
+    s+=`<g transform="translate(${x} ${y})"><circle r="16" fill="#cbbfa8"/>${t}</g>`; });
+  // cypress trees on both sides of the aisle: one before row 1 and then every N rows
+  const trees=[]; for(let r=0;r<=c.rows;r+=Math.max(1,c.treeEvery)){ const y=G.rowY(1)-G.rowGap/2+r*G.rowGap; [-1,1].forEach(sd=>trees.push([G.cx+sd*(G.aisle/2+G.gapTree/2),y])); }
+  const tree=(x,y)=>`<g transform="translate(${x} ${y})" pointer-events="none"><ellipse cx="18" cy="22" rx="40" ry="30" fill="#1b2a12" opacity=".35"/><circle r="36" fill="url(#cyp)"/><circle cx="-6" cy="-6" r="22" fill="#4b6f38" opacity=".8"/><circle cx="-9" cy="-9" r="9" fill="#6b9150" opacity=".9"/></g>`;
+  // benches
+  let benches='';
+  cmBenches().forEach(b=>{ const x=G.benchX(b.side), y=G.rowY(b.row), rot=b.side==='L'?ang:-ang; const sel=cmUi.sel===b.code; const people=cmOn(b.code).length;
+    let seats=''; for(let i=0;i<c.perBench;i++){ const g=cmSeatAt(b.code,i), sx=cmSeatPos(G,b,i);
+      seats+= g? `<g data-seat="${b.code}:${i}" transform="translate(${r1(sx)} 0)"><circle r="19" fill="${SIDE_COL(g.side)==='transparent'?'#a5814a':SIDE_COL(g.side)}" stroke="#fff" stroke-width="3"/><text y="6" text-anchor="middle" font-family="Manrope,system-ui,sans-serif" font-weight="800" font-size="16" fill="#fff" pointer-events="none">${esc(initials(g.name))}</text><title>${esc(g.name)}</title></g>`
+             : `<g data-seat="${b.code}:${i}" transform="translate(${r1(sx)} 0)"><circle r="17" fill="#ffffff" fill-opacity=".25" stroke="#fff8ec" stroke-opacity=".75" stroke-width="2" stroke-dasharray="5 4"/></g>`;
+      if(g&&c.names) seats+=`<g transform="translate(${r1(sx)} ${b.side==='L'?40:40}) rotate(${-rot})" pointer-events="none"><text text-anchor="middle" font-family="Manrope,system-ui,sans-serif" font-weight="700" font-size="14" fill="#1d2622" stroke="#fff" stroke-width="4" stroke-opacity=".9" style="paint-order:stroke">${esc(g.name.split(' ')[0])}</text></g>`; }
+    const lx= b.side==='L'? -G.L/2-34 : G.L/2+34;
+    benches+=`<g class="cm-bench${sel?' sel':''}" data-bench="${b.code}" transform="translate(${r1(x)} ${r1(y)}) rotate(${rot})">
+      ${sel?`<rect x="${-G.L/2-14}" y="${-G.D/2-14}" width="${G.L+28}" height="${G.D+28}" rx="12" fill="none" stroke="#ffd36b" stroke-width="6"/>`:''}
+      <g filter="url(#sh)"><rect x="${-G.L/2}" y="${-G.D/2}" width="${G.L}" height="${G.D}" rx="5" fill="url(#woodL)" stroke="#5e3316" stroke-width="2.5"/></g>
+      <path d="M${-G.L/2+4} -7H${G.L/2-4}M${-G.L/2+4} 8H${G.L/2-4}" stroke="rgba(60,28,8,.25)" stroke-width="1.5"/>
+      ${seats}
+      <g transform="translate(${lx} 0) rotate(${-rot})" pointer-events="none"><text y="7" text-anchor="middle" font-family="Cormorant Garamond,Georgia,serif" font-weight="700" font-size="24" fill="#fff" stroke="#2b3a22" stroke-width="3" stroke-opacity=".5" style="paint-order:stroke">${b.code}</text><text y="26" text-anchor="middle" font-family="Manrope,system-ui,sans-serif" font-weight="700" font-size="12" fill="#fff" opacity=".9">${people}/${c.perBench}</text></g>
+    </g>`; });
+  s+=benches+trees.map(t=>tree(t[0],t[1])).join('');
+  // side labels + entrance
+  s+=`<g font-family="Manrope,system-ui,sans-serif" font-weight="800" font-size="22" letter-spacing="4" fill="#fff" opacity=".92" text-anchor="middle" pointer-events="none">
+    <text x="${G.benchX('L')}" y="${G.top-70}">${esc(String(c.left||'ESQUERDA').toUpperCase())}</text><text x="${G.benchX('R')}" y="${G.top-70}">${esc(String(c.right||'DIREITA').toUpperCase())}</text>
+    <text x="${G.cx}" y="${G.H+40}">ENTRADA DOS NOIVOS</text></g>`;
+  return {svg:s, vb:`-40 40 ${G.W+80} ${G.H+60}`};
+}
+function initials(n){ const p=String(n).trim().split(/\s+/); return ((p[0]||'')[0]||'').toUpperCase()+((p.length>1?p[p.length-1][0]:'')||'').toUpperCase(); }
+function renderCerim(){
+  const svg=$('#cmSvg'); if(!svg) return; const r=cmSVG(); svg.setAttribute('viewBox',r.vb); svg.innerHTML=r.svg;
+  $('#cmNames').setAttribute('aria-pressed',String(!!cmCfg().names));
+  renderCmPanel();
+}
+function cmStats(){ const ppl=cmPeople(); const seated=ppl.filter(g=>g.cb&&cmBenchExists(g.cb)).length; const cap=cmCfg().rows*2*cmCfg().perBench; return {total:ppl.length,seated,un:ppl.length-seated,cap}; }
+function cmBenchExists(code){ const m=/^([ED])(\d+)$/.exec(code||''); return !!m&&+m[2]>=1&&+m[2]<=cmCfg().rows; }
+function cmUnseated(){ return cmPeople().filter(g=>!(g.cb&&cmBenchExists(g.cb))); }
+function renderCmPanel(){
+  const P=$('#cmPanel'); const ro=ui.readOnly; const c=cmCfg();
+  if(cmUi.sel&&cmBenchExists(cmUi.sel)){
+    const code=cmUi.sel, side=code[0]==='E'?'L':'R', n=c.perBench;
+    let rows=''; for(let i=0;i<n;i++){ const g=cmSeatAt(code,i);
+      rows+=`<li><span class="seatno">${i+1}</span>${g?`<span class="cm-name">${esc(g.name)}${hostOf(g)?' <span class="tag ctag">acomp.</span>':''}<small>${esc([g.side,g.group].filter(Boolean).join(' · '))}</small></span>${ro?'':`<button class="ib del" data-cmout="${g.id}" title="Tirar do banco">${ICON.out}</button>`}`
+        :`<span class="cm-name muted">Lugar livre${i===0?' · ponta do corredor':''}</span>${ro?'':`<button class="btn sm" data-cmadd="${code}">Escolher</button>`}`}</li>`; }
+    P.innerHTML=`<div class="p-head"><div class="p-kicker">Cerimônia · lado ${esc(cmSideName(side)||'')}</div><div class="p-title">${cmBenchTitle(code)}</div><div class="muted" style="margin-top:6px">Fileira ${code.slice(1)} · ${cmOn(code).length} de ${n} lugares · o lugar 1 fica na ponta do corredor</div></div>
+      <div class="p-sec"><h4>Lugares</h4><ul class="glist cm-list">${rows}</ul></div>
+      <div class="p-actions"><button class="btn sm" id="cmBack">← Todos os bancos</button></div>`;
+    return; }
+  cmUi.sel=null; const st=cmStats(); const un=cmUnseated();
+  P.innerHTML=`<div class="p-head"><div class="p-kicker">Cerimônia no jardim</div><div class="p-title">Bancos</div><div class="muted" style="margin-top:6px">Toque num banco para ver e escolher quem senta nele.</div></div>
+    <div class="p-sec"><div class="stats"><div class="stat"><b>${st.seated}</b><span>com lugar</span></div><div class="stat"><b>${st.un}</b><span>sem lugar</span></div><div class="stat"><b>${st.cap}</b><span>lugares (${c.rows*2} bancos)</span></div><div class="stat"><b>${Math.max(0,st.cap-st.seated)}</b><span>lugares livres</span></div></div></div>
+    <div class="p-sec"><h4>Sem lugar na cerimônia <span class="n">${un.length}</span></h4>
+      ${un.length?`<div class="chips">${un.map(g=>`<span class="chip" data-cmpick="${g.id}" title="Toque para escolher o banco">${esc(g.name)}</span>`).join('')}</div><div class="muted" style="margin-top:8px">Toque num nome para escolher o banco.</div>`:`<div class="muted">Todos já têm lugar na cerimônia.</div>`}
+      ${ro?'':`<div class="addrow" style="flex-wrap:wrap"><button class="btn sm primary" id="cmAuto">Distribuir automaticamente</button><button class="btn sm" id="cmClear">Limpar todos</button></div>`}</div>
+    ${ro?'':`<div class="p-sec"><h4>Configuração</h4><div class="fields">
+      <div class="fld"><label for="cm-rows">Fileiras de cada lado</label><input class="inp" id="cm-rows" type="number" min="1" max="30" data-cm="rows" value="${c.rows}"></div>
+      <div class="fld"><label for="cm-per">Pessoas por banco</label><input class="inp" id="cm-per" type="number" min="1" max="12" data-cm="perBench" value="${c.perBench}"></div>
+      <div class="fld"><label for="cm-ang">Inclinação dos bancos</label><div class="unit"><input class="inp" id="cm-ang" type="number" min="0" max="40" step="1" data-cm="angle" value="${c.angle}"><span>°</span></div></div>
+      <div class="fld"><label for="cm-tree">Cipreste a cada</label><div class="unit"><input class="inp" id="cm-tree" type="number" min="1" max="10" data-cm="treeEvery" value="${c.treeEvery}"><span>fil.</span></div></div>
+      <div class="fld"><label for="cm-left">Lado esquerdo</label><input class="inp" id="cm-left" data-cm="left" value="${esc(c.left)}"></div>
+      <div class="fld"><label for="cm-right">Lado direito</label><input class="inp" id="cm-right" data-cm="right" value="${esc(c.right)}"></div>
+    </div><div class="muted" style="margin-top:8px">Esquerda e direita olhando para o altar. Por tradição, a família da noiva fica à esquerda.</div></div>`}`;
+}
+function cmSeat(gid,code,seat){ const g=plan.guests.find(x=>x.id===gid); if(!g) return false;
+  const i= seat!=null&&!cmSeatAt(code,seat)? seat : cmFree(code); if(i<0){ toast(`${cmBenchTitle(code)} está cheio`); return false; }
+  let extra=[];
+  mutate(()=>{ g.cb=code; g.cs=i; compsOf(g).forEach(cp=>{ if(!(cp.cb&&cmBenchExists(cp.cb))){ const j=cmFree(code); if(j>=0){ cp.cb=code; cp.cs=j; extra.push(cp.name); } } }); });
+  toast(`${g.name} → ${cmBenchTitle(code)}, lugar ${i+1}`+(extra.length?` · ${extra.join(', ')} junto`:'')); return true; }
+function cmUnseat(gid){ mutate(()=>{ const g=plan.guests.find(x=>x.id===gid); if(g){ g.cb=null; g.cs=null; } }); }
+function cmPickGuest(code){
+  if(ui.readOnly) return;
+  const m=modal(`<div class="m-head"><h2>${cmBenchTitle(code)}</h2><p id="cmpk-sub"></p></div>
+    <div class="m-body"><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input class="inp" id="cmpk-q" placeholder="Buscar nome" autocomplete="off"></div>
+    <ul class="results" id="cmpk-list" style="max-height:min(52vh,460px)"></ul></div>
+    <div class="m-foot"><button class="btn primary" data-close>Pronto</button></div>`,'sm');
+  const side=code[0]==='E'?cmCfg().left:cmCfg().right;
+  const draw=()=>{ const q=normName($('#cmpk-q',m).value); const free=cmFree(code);
+    $('#cmpk-sub',m).textContent=`${cmOn(code).length} de ${cmCfg().perBench} lugares ocupados`+(free<0?' · banco cheio':'');
+    const list=cmUnseated().filter(g=>!q||normName(g.name+' '+g.group).includes(q)).sort((a,b)=>((b.side===side)-(a.side===side)));
+    $('#cmpk-list',m).innerHTML=list.length?list.slice(0,80).map(g=>`<li><button data-g="${g.id}" ${free<0?'disabled':''}><span>${esc(g.name)}<small class="muted" style="display:block">${esc([g.side,g.group].filter(Boolean).join(' · '))}</small></span><span class="rt">+</span></button></li>`).join(''):`<li class="muted">Ninguém sem lugar${q?' com esse nome':''}.</li>`; };
+  draw(); setTimeout(()=>{ if(!isPhone()) $('#cmpk-q',m).focus(); },40);
+  $('#cmpk-q',m).addEventListener('input',draw);
+  $('#cmpk-list',m).addEventListener('click',e=>{ const b=e.target.closest('[data-g]'); if(!b||b.disabled) return; cmSeat(b.dataset.g,code); if(cmFree(code)<0){ closeModal(); } else draw(); });
+}
+function cmPickBench(gid){
+  if(ui.readOnly) return; const g=plan.guests.find(x=>x.id===gid); if(!g) return; const c=cmCfg();
+  const btn=code=>{ const n=cmOn(code).length; return `<button data-t="${code}" class="${n>=c.perBench?'full':''}"><b>${code}</b><span>${n}/${c.perBench}</span></button>`; };
+  const col=side=>{ let h=''; for(let r=1;r<=c.rows;r++) h+=btn(side+r); return h; };
+  const m=modal(`<div class="m-head"><h2>Onde ${esc(g.name.split(' ')[0])} senta na cerimônia?</h2><p>${esc(g.name)}${g.side?' · '+esc(g.side):''}</p></div>
+    <div class="m-body"><div class="cm-pick"><div><h4>${esc(c.left)} · esquerda</h4><div class="seatgrid">${col('E')}</div></div><div><h4>${esc(c.right)} · direita</h4><div class="seatgrid">${col('D')}</div></div></div></div>
+    <div class="m-foot"><button class="btn" data-close>Cancelar</button></div>`,'sm');
+  m.addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(!b) return; closeModal(); cmSeat(gid,b.dataset.t); });
+}
+const CM_RANK=[/^(pai|m[ãa]e|marido m[ãa]e|namorada pai|padrasto|madrasta)/i,/av[óôo]|^v[óô]$/i,/irm[ãa]o?|cunhad/i,/sobrinh|daminha|pajem/i,/^ti[oa]/i,/prim[oa]|esposa primo/i,/amig/i];
+function cmRank(g){ const h=hostOf(g); const grp=(h?h.group:g.group)||''; for(let i=0;i<CM_RANK.length;i++) if(CM_RANK[i].test(grp)) return i; return CM_RANK.length; }
+function cmAuto(){
+  if(ui.readOnly) return;
+  const go=()=>{ mutate(()=>{ const c=cmCfg(); plan.guests.forEach(g=>{ g.cb=null; g.cs=null; });
+    const ppl=cmPeople(); const order=(arr)=>{ const hosts=arr.filter(g=>!isComp(g)); hosts.sort((a,b)=>cmRank(a)-cmRank(b)); const out=[]; hosts.forEach(h=>{ out.push(h); compsOf(h).forEach(cp=>{ if(arr.includes(cp)) out.push(cp); }); }); arr.forEach(g=>{ if(!out.includes(g)) out.push(g); }); return out; };
+    const norm=x=>String(x||'').toLowerCase();
+    const L=order(ppl.filter(g=>norm(g.side)===norm(c.left))), R=order(ppl.filter(g=>norm(g.side)===norm(c.right))), O=order(ppl.filter(g=>norm(g.side)!==norm(c.left)&&norm(g.side)!==norm(c.right)));
+    const slots=side=>{ const s=[]; for(let r=1;r<=c.rows;r++) for(let i=0;i<c.perBench;i++) s.push([side+r,i]); return s; };
+    const sl=slots('E'), sr=slots('D');
+    const fill=(list,a,b)=>{ list.forEach(g=>{ const sp=a.length?a.shift():(b.length?b.pop():null); if(sp){ g.cb=sp[0]; g.cs=sp[1]; } }); };
+    fill(L,sl,sr); fill(R,sr,sl); fill(O,sl.length>=sr.length?sl:sr, sl.length>=sr.length?sr:sl); });
+    const st=cmStats(); toast(`Distribuição feita: ${st.seated} pessoas com lugar`+(st.un?` · ${st.un} sem lugar (faltam bancos)`:'')); };
+  if(!cmStats().seated){ go(); return; }
+  const m=modal(`<div class="m-head"><h2>Distribuir automaticamente?</h2><p>Os lugares atuais da cerimônia serão refeitos. ${esc(cmCfg().left)} à esquerda e ${esc(cmCfg().right)} à direita; pais, avós e irmãos nas primeiras fileiras, depois tios, primos e amigos. Cada acompanhante senta ao lado de quem o trouxe.</p></div>
+    <div class="m-foot"><button class="btn" data-close>Cancelar</button><button class="btn primary" id="cma-go">Distribuir</button></div>`,'sm');
+  $('#cma-go',m).onclick=()=>{ closeModal(); go(); };
+}
+function cmClear(){ const m=modal(`<div class="m-head"><h2>Limpar todos os bancos?</h2><p>Todo mundo fica sem lugar na cerimônia. As mesas da festa não mudam.</p></div><div class="m-foot"><button class="btn" data-close>Cancelar</button><button class="btn danger armed" id="cmc-go">Limpar</button></div>`,'sm');
+  $('#cmc-go',m).onclick=()=>{ closeModal(); mutate(()=>{ plan.guests.forEach(g=>{ g.cb=null; g.cs=null; }); }); }; }
+function bindCerim(){
+  const svg=$('#cmSvg');
+  svg.addEventListener('click',e=>{ const s=e.target.closest('[data-seat]'); const b=e.target.closest('[data-bench]');
+    if(s){ const [code,i]=s.dataset.seat.split(':'); const g=cmSeatAt(code,+i); cmUi.sel=code; renderCerim(); if(!g&&!ui.readOnly) cmPickGuest(code); return; }
+    if(b){ cmUi.sel=b.dataset.bench; renderCerim(); if(isPhone()) $('#cmPanel').scrollIntoView({behavior:'smooth',block:'start'}); return; }
+    if(cmUi.sel){ cmUi.sel=null; renderCerim(); } });
+  const P=$('#cmPanel');
+  P.addEventListener('click',e=>{ const ch=e.target.closest('[data-cmpick]'); if(ch){ cmPickBench(ch.dataset.cmpick); return; }
+    const b=e.target.closest('button'); if(!b) return;
+    if(b.dataset.cmout) return cmUnseat(b.dataset.cmout);
+    if(b.dataset.cmadd) return cmPickGuest(b.dataset.cmadd);
+    if(b.id==='cmBack'){ cmUi.sel=null; renderCerim(); return; }
+    if(b.id==='cmAuto') return cmAuto(); if(b.id==='cmClear') return cmClear(); });
+  P.addEventListener('change',e=>{ const k=e.target.dataset.cm; if(!k) return; let v=e.target.value;
+    if(['rows','perBench','angle','treeEvery'].includes(k)){ v=parseInt(v,10); if(isNaN(v)) return renderCmPanel(); const lim={rows:[1,30],perBench:[1,12],angle:[0,40],treeEvery:[1,10]}[k]; v=clamp(v,lim[k][0],lim[k][1]); }
+    mutate(()=>{ plan.ceremony[k]=v; if(k==='rows'||k==='perBench') plan.guests.forEach(g=>{ if(g.cb&&(!cmBenchExists(g.cb)||g.cs>=plan.ceremony.perBench)){ g.cb=null; g.cs=null; } }); }); });
+  $('#cmNames').onclick=()=>{ mutate(()=>{ plan.ceremony.names=!plan.ceremony.names; }); };
+  $('#cmXlsx').onclick=exportXlsx; $('#cmPng').onclick=exportCerimPng;
+}
+async function exportCerimPng(){
+  const r=cmSVG(); const vb=r.vb.split(' ').map(Number); const defs=$('#mapdefs defs').innerHTML;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${r.vb}" width="${Math.round(vb[2]/1.2)}" height="${Math.round(vb[3]/1.2)}"><defs>${defs}</defs>${r.svg}</svg>`;
+  const url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'})); const img=new Image();
+  img.onload=()=>{ const c=document.createElement('canvas'); c.width=img.width*2; c.height=img.height*2; const g=c.getContext('2d'); g.scale(2,2); g.drawImage(img,0,0); URL.revokeObjectURL(url); c.toBlob(b=>{ if(b) saveFile(fileBase()+'-cerimonia.png',b); },'image/png'); };
+  img.onerror=()=>{ URL.revokeObjectURL(url); toast('Não foi possível gerar a imagem'); }; img.src=url;
+}
+function cmRows(){ const rows=[]; cmBenches().forEach(b=>{ for(let i=0;i<cmCfg().perBench;i++){ const g=cmSeatAt(b.code,i); if(g) rows.push([b.code, i+1, g.name, cmSideName(b.side), g.side, g.group]); } }); return rows; }
 
 /* ====== import ====== */
 /* Accepts the couple's spreadsheet as pasted from Excel: an optional title row, a header row
@@ -1403,6 +1619,7 @@ function exportXlsx(){
   const ws2=X.utils.aoa_to_sheet(sum); ws2['!cols']=[{wch:7},{wch:20},{wch:9},{wch:9},{wch:11},{wch:14},{wch:90}]; X.utils.book_append_sheet(wb,ws2,'Resumo por mesa');
   const r3=fullRows(); const ws3=X.utils.aoa_to_sheet([HEAD_FULL,...r3]); ws3['!cols']=[{wch:9},{wch:28},{wch:18},{wch:24},{wch:20},{wch:9},{wch:30},{wch:7}]; ws3['!autofilter']={ref:`A1:H${r3.length+1}`};
   X.utils.book_append_sheet(wb,ws3,'Lista completa');
+  const r4=cmRows(); if(r4.length){ const ws4=X.utils.aoa_to_sheet([['Banco','Lugar','Convidado','Lado do banco','Lado','Classificação'],...r4]); ws4['!cols']=[{wch:8},{wch:7},{wch:30},{wch:14},{wch:10},{wch:22}]; X.utils.book_append_sheet(wb,ws4,'Cerimônia'); }
   const buf=X.write(wb,{bookType:'xlsx',type:'array'});
   saveFile(fileBase()+'.xlsx', new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
 }
@@ -1620,7 +1837,8 @@ async function save(){
 function setView(v){
   if(ui.readOnly&&v==='editor') v='cer';
   ui.view=v; $$('.tab').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.view===v)));
-  $('#view-editor').hidden=v!=='editor'; $('#view-guests').hidden=v!=='guests'; $('#view-cer').hidden=v!=='cer';
+  $('#view-editor').hidden=v!=='editor'; $('#view-guests').hidden=v!=='guests'; $('#view-cer').hidden=v!=='cer'; $('#view-cerim').hidden=v!=='cerim';
+  if(v==='cerim') renderCerim();
   if(v==='guests') renderGuests();
   if(v==='cer'){ cer.render(); renderCer(); requestAnimationFrame(()=>{ if(!cer.fitted) cer.fit(); }); }
   if(v==='editor') requestAnimationFrame(()=>{ if(!ed.fitted) ed.fit(); });
@@ -1779,12 +1997,12 @@ function boot(){
     onCam:c=>{ $('#zv').textContent=Math.round(c.k*400)+'%'; },
     onLive:()=>{} });
   cer=new MapView($('#cerSvg'),$('#cerStage'),{editable:false,padTop:56,state:()=>({showEmpty:false,showNames:cerUi.showNames,lights:cerUi.lights,hl:cerUi.hl,hlGuest:cerUi.hlGuest}),onTap:id=>{ const el=byId(id); if(isTable(el)){ flashTable(id); const c=$('#card-'+id); if(c) c.scrollIntoView({behavior:'smooth',block:'center'}); } }});
-  bind();
+  bind(); bindCerim();
   // restore UI state after a save-reload
   let restored=null; try{ restored=JSON.parse(sessionStorage.getItem('mapa-ui')); sessionStorage.removeItem('mapa-ui'); }catch(e){}
   if(restored){ ['snap','showEmpty','showNames','lights'].forEach(k=>{ if(k in restored){ ui[k]=restored[k]; const b=$(`[data-toggle="${k}"]`); if(b) b.setAttribute('aria-pressed',String(ui[k])); } }); if(restored.sel&&byId(restored.sel)) ui.sel=restored.sel; }
   renderAll(); updateSaveState();
-  const hash=(location.hash||'').replace('#',''); const startView= restored&&restored.view || ({planta:'editor',convidados:'guests',cerimonial:'cer'})[hash] || 'editor';
+  const hash=(location.hash||'').replace('#',''); const startView= restored&&restored.view || ({planta:'editor',convidados:'guests',cerimonial:'cer',cerimonia:'cerim'})[hash] || 'editor';
   setView(startView);
   if(restored&&restored.cam){ requestAnimationFrame(()=>{ ed.cam=restored.cam; ed.fitted=true; ed.apply(); ed.renderSel(); }); }
   // unsaved draft from this browser
